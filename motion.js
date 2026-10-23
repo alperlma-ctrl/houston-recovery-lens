@@ -1,13 +1,12 @@
 'use strict';
 // Animation decorates already-calculated results. It never changes a score or allocation.
-const roomMotion={enabled:null,previous:null,frame:null,started:Date.now(),seen:false};
+const roomMotion={enabled:null,previous:null,frame:null,seen:false};
 function roomMotionAllowed(){return roomMotion.enabled!==false&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches;}
 function roomMotionStop(){if(roomMotion.frame!==null){cancelAnimationFrame(roomMotion.frame);roomMotion.frame=null;}}
 function bindRoomMotion(){
  roomMotionStop();
  const root=document.querySelector('.decision-room');if(!root)return;
  const allowed=roomMotionAllowed();root.classList.toggle('motion-off',!allowed);
- root.style.setProperty('--radar-phase',-((Date.now()-roomMotion.started)/1000%16)+'s');
  const toggle=document.getElementById('room-motion-toggle');
  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
  toggle.disabled=reduced;toggle.title=reduced?'Your device requests reduced motion.':'Pause or enable visual animation';

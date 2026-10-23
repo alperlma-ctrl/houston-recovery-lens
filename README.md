@@ -96,4 +96,4 @@ Run `python optimize_rehearsal.py` after generating `results/demo_data.json`. Th
 
 ## Visual motion
 
-The Decision Room includes an ambient radar sweep, animated score gauge, county-fill transitions, staggered entrance, and animated comparison bars. The radar is decorative and shows no live weather. Use **Pause animation** to stop motion. Device reduced-motion preferences disable animated effects automatically. Calculations and exported receipts always use the actual final scores.
+The Decision Room includes an animated score gauge, county-fill transitions, staggered entrance, and animated comparison bars. Use **Pause animation** to stop motion. Device reduced-motion preferences disable animated effects automatically. Calculations and exported receipts always use the actual final scores.
