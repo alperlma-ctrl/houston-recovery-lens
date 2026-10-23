@@ -1,35 +1,146 @@
 {
-  "eligible_n": 54000,
+  "eligible_n": 54697,
   "mixed_test": {
-    "train_n": 43200,
-    "test_n": 10800,
-    "baseline_mae": 56263.44907407407,
-    "model_mae": 45440.401435024316,
-    "improvement_pct": 19.23637426635646,
-    "r2": 0.32128374466331355,
+    "train_n": 43757,
+    "test_n": 10940,
+    "baseline_mae": 55732.99305301646,
+    "model_mae": 39598.35085118189,
+    "improvement_pct": 28.949893623129775,
+    "r2": 0.4426484882049928,
     "zero_share": 0.0,
-    "zero_baseline_mae": 87961.25916666667,
-    "test_mean_damage": 87961.25916666667,
-    "mean_prediction": 87730.4453125
+    "zero_baseline_mae": 86878.19268738574,
+    "test_mean_damage": 86878.19268738574,
+    "mean_prediction": 83203.82631225642,
+    "total_error_pct": -4.229331045537288
   },
   "unseen_storm_test": {
-    "train_n": 52898,
+    "train_n": 53595,
     "test_n": 1102,
-    "baseline_mae": 47622.67876588022,
-    "model_mae": 21702.885734322717,
-    "improvement_pct": 54.42741505361941,
-    "r2": -0.37366976782995587,
+    "baseline_mae": 47228.51724137931,
+    "model_mae": 19382.21600741678,
+    "improvement_pct": 58.96077806475145,
+    "r2": -0.018131880578406756,
     "zero_share": 0.0,
     "zero_baseline_mae": 24986.475499092558,
     "test_mean_damage": 24986.475499092558,
-    "mean_prediction": 14400.6259765625
+    "mean_prediction": 20651.03221751966,
+    "total_error_pct": -17.35115975732693
+  },
+  "storm_tests": [
+    {
+      "storm": "Harvey",
+      "test_n": 49776,
+      "model_mae": 69205.81721639114,
+      "baseline_mae": 68186.06838637094,
+      "zero_baseline_mae": 91441.41759080681,
+      "improvement_pct": -1.495538390983131,
+      "r2": -0.424309092450875,
+      "total_error_pct": -68.59458091502096
+    },
+    {
+      "storm": "Imelda",
+      "test_n": 2982,
+      "model_mae": 29125.37624011157,
+      "baseline_mae": 38067.20154258887,
+      "zero_baseline_mae": 46173.096914822265,
+      "improvement_pct": 23.489578797835588,
+      "r2": -0.07833406863025205,
+      "total_error_pct": 9.035435722193142
+    },
+    {
+      "storm": "Beryl",
+      "test_n": 1102,
+      "model_mae": 19382.21600741678,
+      "baseline_mae": 47228.51724137931,
+      "zero_baseline_mae": 24986.475499092558,
+      "improvement_pct": 58.96077806475145,
+      "r2": -0.018131880578406756,
+      "total_error_pct": -17.35115975732693
+    },
+    {
+      "storm": "Spring 2024",
+      "test_n": 396,
+      "model_mae": 38814.6451461705,
+      "baseline_mae": 45789.055555555555,
+      "zero_baseline_mae": 69324.66161616161,
+      "improvement_pct": 15.231610097140024,
+      "r2": 0.16723151771141398,
+      "total_error_pct": -19.687216890001647
+    },
+    {
+      "storm": "Beta",
+      "test_n": 186,
+      "model_mae": 17373.31112452825,
+      "baseline_mae": 48530.790322580644,
+      "zero_baseline_mae": 22292.08064516129,
+      "improvement_pct": 64.20146672030455,
+      "r2": -0.05457067427240969,
+      "total_error_pct": -34.0598644259169
+    },
+    {
+      "storm": "Nicholas",
+      "test_n": 140,
+      "model_mae": 17511.642698769057,
+      "baseline_mae": 56742.53571428572,
+      "zero_baseline_mae": 11938.992857142857,
+      "improvement_pct": 69.1384206251462,
+      "r2": -0.7688797099873563,
+      "total_error_pct": 87.8255836022725
+    },
+    {
+      "storm": "Arthur",
+      "test_n": 44,
+      "model_mae": 18791.580890384586,
+      "baseline_mae": 37825.795454545456,
+      "zero_baseline_mae": 34409.47727272727,
+      "improvement_pct": 50.320725143860955,
+      "r2": 0.30247394030813046,
+      "total_error_pct": -15.984207312753785
+    },
+    {
+      "storm": "Alberto",
+      "test_n": 26,
+      "model_mae": 13536.931665084683,
+      "baseline_mae": 55294.307692307695,
+      "zero_baseline_mae": 13986.846153846154,
+      "improvement_pct": 75.51839921676444,
+      "r2": -0.2765915940296044,
+      "total_error_pct": -26.74839900350763
+    },
+    {
+      "storm": "Fall 2018",
+      "test_n": 25,
+      "model_mae": 14188.081630613804,
+      "baseline_mae": 47568.14,
+      "zero_baseline_mae": 20952.84,
+      "improvement_pct": 70.17314187476364,
+      "r2": -0.04036775940690607,
+      "total_error_pct": -20.88953377949646
+    },
+    {
+      "storm": "Laura",
+      "test_n": 20,
+      "model_mae": 13594.630517223477,
+      "baseline_mae": 62985.3,
+      "zero_baseline_mae": 5037.7,
+      "improvement_pct": 78.41618517777405,
+      "r2": -7.495917616048951,
+      "total_error_pct": 252.12196021621955
+    }
+  ],
+  "storm_summary": {
+    "storms": 10,
+    "beat_baseline": 9,
+    "improvement_pct_excl_harvey": 36.440453216025105,
+    "four_storm_improvement_pct_excl_harvey": 35.05563899732547
   },
   "importance": {
-    "Water depth": 0.5162378549575806,
-    "Home coverage": 0.22030705213546753,
-    "County": 0.10450523346662521,
-    "Storm rain & wind": 0.09558161348104477,
-    "Flood zone": 0.06336823105812073
+    "Water depth": 0.4870359003543854,
+    "Location & zip history": 0.14547061920166016,
+    "Home coverage": 0.10800943523645401,
+    "Flood zone": 0.09176905453205109,
+    "Storm rain & wind": 0.0913870707154274,
+    "County": 0.076327845454216
   },
   "scope": {
     "depth": "Raw recorded code 0..10; inches/feet ambiguity unresolved",
