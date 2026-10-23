@@ -1,5 +1,7 @@
 # Houston Recovery Lens
 
+Built by **Siddharth Korampalli and Andrew Perlman**.
+
 A Track 1 hurricane preparedness and recovery research demo for the Code[Coogs] AI Hackathon on October 23, 2026.
 
 Recovery Lens opens with a Decision Room: allocate a fixed appointment budget, stress-test the county mix across historical storms, compare simple strategies, and export a decision receipt. A six-hour wind replay, historical recovery atlas, and assumed-request capacity planner support the decision workflow. It works offline in a single browser file and includes reproducible analysis and visible limitations.
@@ -8,7 +10,7 @@ Recovery Lens opens with a Decision Room: allocate a fixed appointment budget, s
 
 ## Start here
 
-Open **OPEN_DEMO.html** here, choose **Download raw file**, and open the downloaded file in your browser. Download and extract **Houston_Recovery_Lens.zip** for the complete runnable folder layout, source data, results, verification, and multi-file demo. Selected source files at the repository root are for review. No API key or additional plugin is required.
+Open **OPEN_DEMO.html** here, choose **Download raw file**, and open the downloaded file. Download and extract **Houston_Recovery_Lens.zip** for the complete source, original data, fitted models, and runnable folder layout. Selected source files are also viewable here. No API key or plugin is needed.
 
 1. **Decision Room:** edit a budget, choose historical scenarios, compare equal / pooled-historical / maximin allocation, and export a readable HTML receipt with its full calculation record. The default 100-slot exercise scores 41.8% for equal allocation and 59.2% for the rounded stress-tested mix on worst-scenario historical distributional overlap. This is scenario fit, not people helped or forecast accuracy.
 2. **Wind replay:** select a weather window and county, move the cutoff hour, compare the model with persistence, and reveal the recorded following six hours.
@@ -97,3 +99,11 @@ Run `python optimize_rehearsal.py` after generating `results/demo_data.json`. Th
 ## Visual motion
 
 The Decision Room includes an animated score gauge, county-fill transitions, staggered entrance, and animated comparison bars. Use **Pause animation** to stop motion. Device reduced-motion preferences disable animated effects automatically. Calculations and exported receipts always use the actual final scores.
+
+## Water-depth damage experiment
+
+The **Predict damage** tab adds XGBoost estimates under recorded storm weather, depth-code and coverage inputs, plus county and ZIP summaries under Harvey weather. `predict_model.py` reproduces the experiment and saves the fitted model, evaluation metrics and interpolation grid. `build_demo.py` rebuilds the standalone HTML from `demo/`. Install the pinned requirements and run `python predict_model.py`, then `python build_demo.py` from the complete extracted project.
+
+The integrated rerun retained **54,000 claim records**. Random-record holdout MAE was **$45,440** versus **$56,263** for its training-median baseline (19.2% lower). Beryl excluded from fitting had MAE **$21,703**, versus **$47,623** for the older-storm median and **$24,986** for always zero; R² was **−0.374**. Results differ slightly across execution environments. These are development checks; Beryl was already inspected during project development, and random claim records are not verified distinct homes. The final interactive grid is refitted on all 54,000 records.
+
+The organizer describes water depth as inches/feet without resolving units. This experiment restricts raw depth codes to 0–10 and treats them as an explicitly unverified modeling assumption. Full-storm weather and recorded depth make this retrospective, not an advance forecast. ZIP totals reuse records across storms and cannot establish unique-home loss, community need, or aid priority. The estimator suppresses county/storm/zone cohorts with fewer than 50 retained depth-coded records. Numeric inputs clamp to the exported grid, show the value used, and retain the last valid estimate for blank input. Interpolated values blend four neighboring grid predictions.

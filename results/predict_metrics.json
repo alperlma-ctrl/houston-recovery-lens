@@ -1,0 +1,39 @@
+{
+  "eligible_n": 54000,
+  "mixed_test": {
+    "train_n": 43200,
+    "test_n": 10800,
+    "baseline_mae": 56263.44907407407,
+    "model_mae": 45440.401435024316,
+    "improvement_pct": 19.23637426635646,
+    "r2": 0.32128374466331355,
+    "zero_share": 0.0,
+    "zero_baseline_mae": 87961.25916666667,
+    "test_mean_damage": 87961.25916666667,
+    "mean_prediction": 87730.4453125
+  },
+  "unseen_storm_test": {
+    "train_n": 52898,
+    "test_n": 1102,
+    "baseline_mae": 47622.67876588022,
+    "model_mae": 21702.885734322717,
+    "improvement_pct": 54.42741505361941,
+    "r2": -0.37366976782995587,
+    "zero_share": 0.0,
+    "zero_baseline_mae": 24986.475499092558,
+    "test_mean_damage": 24986.475499092558,
+    "mean_prediction": 14400.6259765625
+  },
+  "importance": {
+    "Water depth": 0.5162378549575806,
+    "Home coverage": 0.22030705213546753,
+    "County": 0.10450523346662521,
+    "Storm rain & wind": 0.09558161348104477,
+    "Flood zone": 0.06336823105812073
+  },
+  "scope": {
+    "depth": "Raw recorded code 0..10; inches/feet ambiguity unresolved",
+    "evaluation": "Retrospective development checks; random rows are not distinct homes",
+    "scenario": "Reuses recorded depth and coverage for each claim record with Harvey weather; repeats across storms can occur"
+  }
+}

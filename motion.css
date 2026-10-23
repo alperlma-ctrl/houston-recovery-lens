@@ -1,4 +1,7 @@
 /* Purposeful map and score transitions. All effects can be paused. */
+.decision-room input[type="number"]{color-scheme:dark;accent-color:#edc66b}
+.decision-room input[type="number"]:hover{border-color:#9b926e}
+.decision-room input[type="number"]:focus{border-color:#edc66b;outline:1px solid #edc66b;outline-offset:1px}
 .room-mast-actions{display:flex;align-items:center;gap:20px}
 #room-motion-toggle{font:9px monospace;letter-spacing:.2px;background:#172f36;border:1px solid #456068;border-radius:20px;color:#c8dadd;padding:7px 11px;cursor:pointer;white-space:nowrap}
 #room-motion-toggle:hover{border-color:#edc66b;color:#edc66b}
