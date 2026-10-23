@@ -80,7 +80,7 @@ More independent storms, consistent property and exposure data, forecast-time in
 
 - Open the demo in advance and keep the offline copy available.
 - Practice the clicks once. Read the explanation of the failed model.
-- Add your actual name and any teammates when introducing the project. Do not invent a team.
+- Introduce the team: Siddharth Korampalli and Andrew Perlman.
 - Present the historical explorer as the finished product and the prediction model as an evaluated experiment.
 - Be ready by **4:30 p.m. Central on October 23, 2026**, according to the supplied packet. Follow any updated organizer instructions.
 

@@ -2,6 +2,8 @@
 
 Track 1 — Hurricane Preparedness and Recovery · Code[Coogs] AI Hackathon · October 23, 2026
 
+**Team:** Siddharth Korampalli and Andrew Perlman
+
 A working historical recovery explorer for Greater Houston. Compare assessed building damage among eligible single-family flood insurance claims after Harvey, Imelda, Nicholas, and Beryl. Explore counties, filter recorded flood zones, inspect rainfall, and export a county comparison.
 
 ## Start here
