@@ -23,7 +23,7 @@ The original field descriptions are supplied by the organizer's Challenge 1 brie
 | ratedFloodZone | Recorded rated flood-zone designation | Preserve X and AE as categories; group other and unknown values as OTHER |
 | yearOfLoss | Loss year | Check chronological separation; never use as a model input |
 
-Other supplied fields are dateOfLoss, state, reportedZipCode, latitude, longitude, waterDepth, netBuildingPaymentAmount, amountPaidOnBuildingClaim, contentsDamageAmount, netContentsPaymentAmount, and amountPaidOnContentsClaim. These remain in the source but are excluded from prediction features. Redacted coordinates are not property locations and are not exposed in the demo. Water-depth interpretation and units are not sufficiently resolved for this analysis; no depth-based damage estimate is made.
+Other supplied fields are dateOfLoss, state, reportedZipCode, latitude, longitude, waterDepth, netBuildingPaymentAmount, amountPaidOnBuildingClaim, contentsDamageAmount, netContentsPaymentAmount, and amountPaidOnContentsClaim. These remain in the source but are excluded from prediction features. Redacted coordinates are not property locations and are not exposed in the demo. Water-depth interpretation and units are not sufficiently resolved for this analysis; the original atlas and rejected Ridge experiment exclude it. The separate added XGBoost experiment retains raw codes 0–10 under an explicitly unverified units assumption; it is not a physical-depth forecast.
 
 ## Weather fields used
 
@@ -106,3 +106,7 @@ The shaded wind reference band adds the 10th and 90th percentiles of Nicholas si
 - Allocations never exceed assumed requests; total assigned slots equal the smaller of capacity and total assumed requests.
 - Exports retain scenario source, total capacity, preferred floor, assumed requests, allocations, and unserved requests.
 - Historical claim-share scenarios are explicitly hypothetical. They do not estimate population, uninsured need, or actual appointment demand.
+
+## Added damage experiment
+
+`predict_model.py` uses `waterDepth`, log building insurance coverage, county, recorded zone, and full-storm rainfall/gust. Random claim-record and Beryl-excluded development checks are separate. `predict_data.json` includes county/storm/zone cohort sizes; the UI requires at least 50 retained records. The all-record fitted grid uses depths 0–10 and coverage $25,000–$250,000. Numeric inputs are clamped before bilinear interpolation. ZIP and county replay totals reuse each eligible claim record with Harvey weather and its recorded depth/coverage; records are not unique homes.

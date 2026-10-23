@@ -1,20 +1,20 @@
 # Houston Recovery Lens
 
+Built by **Siddharth Korampalli and Andrew Perlman**.
+
 A Track 1 hurricane preparedness and recovery research demo for the Code[Coogs] AI Hackathon on October 23, 2026.
 
-Recovery Lens connects three tasks: replay a six-hour wind outlook, inspect historical recovery damage, and create an editable outreach-capacity scenario. It works offline in a single browser file and includes reproducible analysis and visible limitations.
+Recovery Lens opens with a Decision Room: allocate a fixed appointment budget, stress-test the county mix across historical storms, compare simple strategies, and export a decision receipt. A six-hour wind replay, historical recovery atlas, and assumed-request capacity planner support the decision workflow. It works offline in a single browser file and includes reproducible analysis and visible limitations.
 
-![Wind replay preview](Recovery_Lens_Preview.png)
+![Decision Room preview](Recovery_Lens_Preview.png)
 
 ## Start here
 
-Open **OPEN_DEMO.html** in this repository, choose **Download raw file**, and open the downloaded file in your browser. No installation, server, API key, or additional plugin is required.
+Open **OPEN_DEMO.html** here, choose **Download raw file**, and open the downloaded file. Download and extract **Houston_Recovery_Lens.zip** for the complete source, original data, fitted models, and runnable folder layout. Selected source files are also viewable here. No API key or plugin is needed.
 
-Download and extract **Houston_Recovery_Lens.zip** for the complete folder layout described below, including `demo/`, `data/`, `results/`, and `verification/`. Selected source files are also directly viewable here for review. `wind.js` contains the replay and capacity-allocation interface logic; the complete runnable multi-file demo is inside the ZIP.
-
-1. **Wind replay:** select a weather window and county, move the cutoff hour, compare the model with persistence, and reveal the recorded following six hours.
-2. **Recovery atlas:** compare observed building damage among eligible flood insurance claim records across four storms and five counties.
-3. **Predict damage:** estimate one home's building damage from its water depth, flood zone, coverage, county, and storm, and see which zip codes need help first if Harvey hit again.
+1. **Decision Room:** edit a budget, choose historical scenarios, compare equal / pooled-historical / maximin allocation, and export a readable HTML receipt with its full calculation record. The default 100-slot exercise scores 41.8% for equal allocation and 59.2% for the rounded stress-tested mix on worst-scenario historical distributional overlap. This is scenario fit, not people helped or forecast accuracy.
+2. **Wind replay:** select a weather window and county, move the cutoff hour, compare the model with persistence, and reveal the recorded following six hours.
+3. **Recovery atlas:** compare observed building damage among eligible flood insurance claim records across four storms and five counties.
 4. **Capacity plan:** edit assumed appointment requests, set available slots, review the allocation, and export the assumptions and plan together.
 5. **Evidence:** inspect model selection, every evaluation window, the severe-peak weakness, and the earlier rejected financial model.
 6. **Pitch guide:** follow the two-minute walkthrough and practice the answers.
@@ -64,32 +64,11 @@ Inputs are editable **assumed appointment requests**, not predicted need. The pl
 
 An optional historical claim mix scales a storm's eligible claim shares into 200 assumed requests. This is labeled as a hypothetical scenario and can be overridden. Insurance records omit uninsured residents, so real outreach requires locally verified demand. Exports include capacity, floor, scenario source, assumed requests, assigned slots, and unserved requests. This is not emergency crew routing or a forecast of resource need.
 
-## The damage estimator
-
-The first model left out water depth, the strongest signal for flood damage. The final model (`predict_model.py`) is an XGBoost regressor that uses water depth, building coverage, flood zone, county, and the storm's total rain and peak gust. It trains on 54,000 eligible single-family claims with a known water depth of 0–10 ft.
-
-Three choices keep its estimates sensible:
-
-- **Depth is limited to 0–10 ft.** Past 10 ft the depth field mixes in inches (counts spike at 12, 24, and 36) and a 99 placeholder.
-- **More water or more coverage never lowers the estimate.** XGBoost's monotone constraints enforce this. Without them, 8 ft of water could show less damage than 4 ft.
-- **A Tweedie objective keeps predictions above $0.** With plain squared error and the constraints, 31% of Beryl predictions dropped to $0.
-
-| Test | Model error | Baseline error | Improvement |
-| --- | ---: | ---: | ---: |
-| 20% of homes held out | $45,440 | $56,263 | 19% |
-| Beryl held out entirely | $21,700 | $47,623 | 54% |
-
-On Beryl the model also beats always predicting $0 ($24,986) and predicts $0 for none of the homes, compared with 100% for the first model. Its typical Beryl prediction ($11,823) is in the range of the actual typical damage ($15,232). Ranking individual homes in a brand-new storm is still rough (R² −0.37), so the demo presents it as an estimate of damage levels, not an exact figure per home. The estimator shows no number for a storm and county with fewer than 50 claims.
-
-The demo's **Predict damage** tab uses this model for a one-home estimator and a "Harvey hit again" scenario that ranks zip codes by predicted total damage.
-
 ## Files and reproduction
 
 - `OPEN_DEMO.html` and `demo/`: standalone and multi-file interfaces.
 - `analysis.ipynb`: **eight executed code cells** with explanations and outputs.
 - `train_model.py`: claims cleaning, joins, rejected financial experiment, and historical summaries.
-- `predict_model.py`: trains and tests the damage estimator and writes `demo/predict.js`.
-- `build_demo.py`: combines the `demo/` files into `OPEN_DEMO.html`.
 - `train_wind_model.py`: causal six-hour samples, whole-storm selection, frozen-model checks, and replay outputs.
 - `fetch_external_weather.py`: reproducible additional ERA5 requests derived from the supplied 2026 tracks.
 - `make_evidence_figure.py`: renders the comparison figure from saved metrics.
@@ -99,7 +78,7 @@ The demo's **Predict damage** tab uses this model for a one-home estimator and a
 - `data/`: original organizer extracts and a separate `external_validation/` folder.
 - `results/`: quality audit, hashes, model objects, all metrics and predictions, and `Wind_Model_Evidence.png`.
 
-To rerun, use Python 3.12 in this extracted project folder, install `requirements.txt`, then run `python train_model.py`, `python train_wind_model.py`, and `python predict_model.py`. The added data is already included; the fetch script is optional when reproducing requests. Run `python make_evidence_figure.py` to regenerate the figure. In Colab, the notebook accepts the complete project ZIP when files are not already present.
+To rerun, use Python 3.12 in this extracted project folder, install `requirements.txt`, then run `python train_model.py` and `python train_wind_model.py`. The added data is already included; the fetch script is optional when reproducing requests. Run `python make_evidence_figure.py` to regenerate the figure. In Colab, the notebook accepts the complete project ZIP when files are not already present.
 
 Optional verification commands are `python verification/check_causality.py` and `node verification/check_capacity.cjs`. The second check uses only standard Node.js modules.
 
@@ -112,3 +91,19 @@ Only load serialized model objects from this project or another trusted source. 
 Additional weather: [Open-Meteo Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api), Copernicus ERA5 reanalysis, CC BY 4.0. Request URLs explicitly set mph, inches, ERA5, and America/Chicago. Responses, source hashes, units, dates, and attribution are retained in `data/external_validation/`. Added-window names and dates come from the supplied track file; local impact and storm attribution were not independently verified.
 
 AI coding assistance was used and is disclosed in the presentation. No user interviews, field validation, operational performance, or independent authorship are invented.
+
+## Reproduce the Decision Room
+
+Run `python optimize_rehearsal.py` after generating `results/demo_data.json`. This writes all 15 nonempty historical-scenario combinations to `results/decision_data.json`. The interface performs deterministic largest-remainder rounding for the chosen budget and recalculates scores. Run `node verification/check_decision.cjs` to check 315 policy/budget/scenario combinations. The optimization uses known historical mixes; it is descriptive decision analysis, not predictive validation.
+
+## Visual motion
+
+The Decision Room includes an animated score gauge, county-fill transitions, staggered entrance, and animated comparison bars. Use **Pause animation** to stop motion. Device reduced-motion preferences disable animated effects automatically. Calculations and exported receipts always use the actual final scores.
+
+## Water-depth damage experiment
+
+The **Predict damage** tab adds XGBoost estimates under recorded storm weather, depth-code and coverage inputs, plus county and ZIP summaries under Harvey weather. `predict_model.py` reproduces the experiment and saves the fitted model, evaluation metrics and interpolation grid. `build_demo.py` rebuilds the standalone HTML from `demo/`. Install the pinned requirements and run `python predict_model.py`, then `python build_demo.py` from the complete extracted project.
+
+The integrated rerun retained **54,000 claim records**. Random-record holdout MAE was **$45,440** versus **$56,263** for its training-median baseline (19.2% lower). Beryl excluded from fitting had MAE **$21,703**, versus **$47,623** for the older-storm median and **$24,986** for always zero; R² was **−0.374**. Results differ slightly across execution environments. These are development checks; Beryl was already inspected during project development, and random claim records are not verified distinct homes. The final interactive grid is refitted on all 54,000 records.
+
+The organizer describes water depth as inches/feet without resolving units. This experiment restricts raw depth codes to 0–10 and treats them as an explicitly unverified modeling assumption. Full-storm weather and recorded depth make this retrospective, not an advance forecast. ZIP totals reuse records across storms and cannot establish unique-home loss, community need, or aid priority. The estimator suppresses county/storm/zone cohorts with fewer than 50 retained depth-coded records. Numeric inputs clamp to the exported grid, show the value used, and retain the last valid estimate for blank input. Interpolated values blend four neighboring grid predictions.

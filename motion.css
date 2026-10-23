@@ -1,0 +1,40 @@
+/* Purposeful map and score transitions. All effects can be paused. */
+.decision-room input[type="number"]{color-scheme:dark;accent-color:#edc66b}
+.decision-room input[type="number"]:hover{border-color:#9b926e}
+.decision-room input[type="number"]:focus{border-color:#edc66b;outline:1px solid #edc66b;outline-offset:1px}
+.room-mast-actions{display:flex;align-items:center;gap:20px}
+#room-motion-toggle{font:9px monospace;letter-spacing:.2px;background:#172f36;border:1px solid #456068;border-radius:20px;color:#c8dadd;padding:7px 11px;cursor:pointer;white-space:nowrap}
+#room-motion-toggle:hover{border-color:#edc66b;color:#edc66b}
+.room-map-stage{position:relative;isolation:isolate;display:flex;flex:1;min-height:300px;overflow:hidden;margin-top:8px}
+.room-map-stage>svg{position:relative;z-index:1;flex:1;filter:drop-shadow(0 12px 15px #0003)}
+.room-map-stage .room-county{stroke:#92abac;transition:stroke .25s,stroke-width .25s,filter .25s}
+.room-map-stage .room-county[role=button]:hover{stroke:#ffedac;stroke-width:2.5;filter:brightness(1.22)}
+.room-map-stage .room-county.chosen{stroke:#ffe297;filter:drop-shadow(0 0 5px #edc66b38)}
+.room-score{position:relative}.room-score>span{display:block;line-height:1.6}
+.room-gauge{position:relative;max-width:195px;aspect-ratio:1;margin:9px auto 6px;display:flex;align-items:center;justify-content:center}
+.room-gauge svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;transform:rotate(-90deg)}
+.room-gauge circle{fill:none;stroke-width:3}
+.room-gauge-track{stroke:#2d4951;stroke-dasharray:1 7;stroke-linecap:round}
+.room-gauge-value{stroke:#edc66b;stroke-linecap:round;filter:drop-shadow(0 0 4px #e8c56a60)}
+.room-score .room-gauge>strong{font:54px Georgia,serif;letter-spacing:-1.8px;color:#f2ce7d;position:relative;margin:-8px 0 0;font-variant-numeric:tabular-nums;text-shadow:0 0 28px #edc66b16}
+.room-gauge>strong small{font-size:23px;margin-left:2px}
+.room-gauge-caption{position:absolute;top:65%;font:8px monospace;color:#9fb5bd;letter-spacing:1.5px}
+.room-score p{text-align:center;font-size:10px}
+.room-scenario-scores i{transform-origin:left;box-shadow:0 0 9px #edc66b16}
+.room-presets button,.room-receipt,.room-counterfactual button{position:relative;overflow:hidden;transition:background .2s,border-color .2s,box-shadow .2s,transform .2s}
+.room-presets button:hover,.room-counterfactual button:hover{transform:translateX(3px);box-shadow:-3px 0 #edc66b}
+.room-receipt{background:linear-gradient(110deg,#dfb554,#f4d58c);box-shadow:0 3px 16px #edc66b14}
+.room-receipt:hover{transform:translateY(-2px);box-shadow:0 6px 20px #edc66b26}
+.room-receipt:active{transform:translateY(0)}
+.room-comparison article{transition:background .2s,transform .2s;padding-top:8px;padding-bottom:8px}
+.room-comparison article:hover{background:#173139;transform:translateY(-3px)}
+.room-mini-bar i{transition:filter .2s}.room-mini-bar:hover i{filter:brightness(1.2)}
+.room-heading em{background:linear-gradient(105deg,#edc66b 20%,#ffeec4 48%,#edc66b 74%);background-clip:text;-webkit-background-clip:text;color:transparent}
+.decision-page{background-image:radial-gradient(ellipse at 80% 10%,#24505b19,transparent 50%)}
+.motion-off *,.motion-off *:before,.motion-off *:after{animation:none!important;transition:none!important}
+@media(max-width:1100px){.room-score .room-gauge>strong{font-size:46px}.room-mast-actions{gap:10px}}
+@media(max-width:800px){.room-mast{align-items:center;gap:12px}.room-mast-actions>span{display:none}.room-mast-actions{flex-shrink:0}.room-map-stage{min-height:300px}.room-center .room-map-stage>svg{max-height:none}.room-gauge{max-width:190px}.room-score .room-gauge>strong{font-size:48px}#room-motion-toggle{font-size:8px;padding:7px 9px}}
+@media print{#room-motion-toggle,.room-gauge svg{display:none}.room-gauge{aspect-ratio:auto;min-height:90px}.room-gauge-caption{display:none}.room-heading em{color:#173139;background:none}.decision-room *{animation:none!important;transition:none!important;filter:none!important}}
+
+.room-map-stage .room-map-label{font-size:10.5px}.room-map-stage .room-map-label.no-data{font-size:9px}.room-map-stage .room-map-number{font-size:22px}.room-map-stage .room-map-unit{font-size:8px}#room-motion-toggle:disabled{cursor:default;opacity:.7}
+@media(prefers-reduced-motion:reduce){.decision-room *,.decision-room *:before,.decision-room *:after{animation:none!important;transition:none!important}.decision-room button:hover,.room-comparison article:hover{transform:none!important}}

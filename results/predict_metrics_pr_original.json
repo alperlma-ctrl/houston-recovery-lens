@@ -1,0 +1,28 @@
+{
+  "eligible_n": 54000,
+  "mixed_test": {
+    "train_n": 43200,
+    "test_n": 10800,
+    "baseline_mae": 56263.44907407407,
+    "model_mae": 45439.5646554759,
+    "improvement_pct": 19.23786151884842,
+    "r2": 0.3212275545500568,
+    "zero_share": 0.0
+  },
+  "unseen_storm_test": {
+    "train_n": 52898,
+    "test_n": 1102,
+    "baseline_mae": 47622.67876588022,
+    "model_mae": 21700.35540697406,
+    "improvement_pct": 54.43272833589212,
+    "r2": -0.36769152677518635,
+    "zero_share": 0.0
+  },
+  "importance": {
+    "Water depth": 0.5366381406784058,
+    "Home coverage": 0.2125953882932663,
+    "County": 0.09593288600444794,
+    "Storm rain & wind": 0.0952976793050766,
+    "Flood zone": 0.05953579396009445
+  }
+}

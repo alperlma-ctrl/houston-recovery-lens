@@ -1,0 +1,73 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Recovery Lens — Decision receipt</title><style>body{font:15px/1.7 Arial,sans-serif;background:#eeeadd;color:#173139;margin:0}main{max-width:850px;background:#fffdf5;margin:30px auto;padding:45px}header{border-bottom:3px solid #c7a04c;padding-bottom:20px}h1{font:42px Georgia,serif;margin:8px 0}small{color:#61787c}table{border-collapse:collapse;width:100%;margin:18px 0}td,th{text-align:left;padding:9px;border-bottom:1px solid #d6dedb}.score{font:40px Georgia,serif;color:#8b6621}pre{white-space:pre-wrap;font-size:11px;overflow-wrap:anywhere}button{padding:10px 15px;background:#173139;color:white;border:0;cursor:pointer}section{break-inside:avoid}@media print{body{background:white}main{margin:0;padding:15px}button,details{display:none}}</style><main><header><small>RECOVERY LENS / DECISION RECEIPT · decision-room-1</small><h1>A record of the choice.</h1><p>Your plan · 100 appointment budget · 0 unassigned</p><small>2026-10-23T17:37:27.774Z · Historical planning exercise</small></header><section><h2>The county plan</h2><table><tr><th>County</th><th>Appointments</th><th>Budget share</th></tr><tr><td>Brazoria</td><td>20</td><td>20.0%</td></tr><tr><td>Fort Bend</td><td>20</td><td>20.0%</td></tr><tr><td>Galveston</td><td>20</td><td>20.0%</td></tr><tr><td>Harris</td><td>20</td><td>20.0%</td></tr><tr><td>Montgomery</td><td>20</td><td>20.0%</td></tr></table></section><section><h2>The stress test</h2><div class="score">41.8%</div><p>Worst historical scenario alignment. This measures claim-distribution overlap, not people helped or forecast accuracy.</p><table><tr><th>Selected historical storm</th><th>Alignment</th></tr><tr><td>Harvey</td><td>48.8%</td></tr><tr><td>Imelda</td><td>41.8%</td></tr><tr><td>Nicholas</td><td>58.3%</td></tr><tr><td>Beryl</td><td>58.9%</td></tr></table><h3>Same-budget comparisons</h3><table><tr><td>Equal</td><td>41.8%</td></tr><tr><td>Historical mix</td><td>37.3%</td></tr><tr><td>Stress-tested</td><td>59.2%</td></tr></table></section><section><h2>Assumptions travel with the decision</h2><p>Continuous linear program maximizes minimum distributional overlap across selected historical county claim mixes. Largest-remainder rounding converts weights to integer appointment slots; scores are recalculated after rounding.</p><p><b>Limits:</b> Eligible insured claim records are not unique households, requests, uninsured losses, population exposure, or future need. Historical scenario overlap does not measure people helped or service quality. Optimizing and evaluating on the same selected scenarios is descriptive stress testing, not predictive validation.</p><p>Each slot has equal cost. Travel, staffing, urgency, and minimum service are not modeled. This is a rehearsal, not an operational recommendation.</p><p><a href="https://drive.google.com/drive/folders/1doFLc1xXvUDTBvoDg0wmebjGIaaCCy0a">Organizer source data</a></p><details><summary>Complete calculation record</summary><pre>{
+  &quot;version&quot;: &quot;decision-room-1&quot;,
+  &quot;created_at&quot;: &quot;2026-10-23T17:37:27.774Z&quot;,
+  &quot;budget&quot;: 100,
+  &quot;policy&quot;: &quot;Your plan&quot;,
+  &quot;appointments&quot;: {
+    &quot;Brazoria&quot;: 20,
+    &quot;Fort Bend&quot;: 20,
+    &quot;Galveston&quot;: 20,
+    &quot;Harris&quot;: 20,
+    &quot;Montgomery&quot;: 20
+  },
+  &quot;unassigned&quot;: 0,
+  &quot;selected_storms&quot;: [
+    &quot;Harvey&quot;,
+    &quot;Imelda&quot;,
+    &quot;Nicholas&quot;,
+    &quot;Beryl&quot;
+  ],
+  &quot;scenario_alignment&quot;: {
+    &quot;Harvey&quot;: 0.4884956399334564,
+    &quot;Imelda&quot;: 0.41785714285714287,
+    &quot;Nicholas&quot;: 0.5834319526627219,
+    &quot;Beryl&quot;: 0.5886559802712701
+  },
+  &quot;worst_alignment&quot;: 0.41785714285714287,
+  &quot;baseline_worst_alignment&quot;: {
+    &quot;Equal&quot;: 0.41785714285714287,
+    &quot;Historical mix&quot;: 0.3734319526627219,
+    &quot;Stress-tested&quot;: 0.5915976331360946
+  },
+  &quot;historical_claim_counts&quot;: {
+    &quot;Harvey&quot;: [
+      4151,
+      2697,
+      6942,
+      38920,
+      1991
+    ],
+    &quot;Imelda&quot;: [
+      23,
+      13,
+      27,
+      2722,
+      743
+    ],
+    &quot;Nicholas&quot;: [
+      52,
+      2,
+      86,
+      29,
+      0
+    ],
+    &quot;Beryl&quot;: [
+      211,
+      75,
+      450,
+      866,
+      20
+    ]
+  },
+  &quot;county_order&quot;: [
+    &quot;Brazoria&quot;,
+    &quot;Fort Bend&quot;,
+    &quot;Galveston&quot;,
+    &quot;Harris&quot;,
+    &quot;Montgomery&quot;
+  ],
+  &quot;formula&quot;: &quot;sum_counties min(allocated_slots / total_budget, eligible_county_claims / eligible_storm_claims)&quot;,
+  &quot;method&quot;: &quot;Continuous linear program maximizes minimum distributional overlap across selected historical county claim mixes. Largest-remainder rounding converts weights to integer appointment slots; scores are recalculated after rounding.&quot;,
+  &quot;limitations&quot;: &quot;Eligible insured claim records are not unique households, requests, uninsured losses, population exposure, or future need. Historical scenario overlap does not measure people helped or service quality. Optimizing and evaluating on the same selected scenarios is descriptive stress testing, not predictive validation.&quot;,
+  &quot;source&quot;: &quot;https://drive.google.com/drive/folders/1doFLc1xXvUDTBvoDg0wmebjGIaaCCy0a&quot;
+}</pre></details></section><p>Use your browser's Print command to save this receipt as a PDF.</p></main></html>

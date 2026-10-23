@@ -38,7 +38,8 @@ def load():
     df['damage'] = pd.to_numeric(df.buildingDamageAmount, errors='coerce')
     df['depth'] = pd.to_numeric(df.waterDepth, errors='coerce')
     df = df[df.damage.notna() & (df.damage >= 0) & df.coverage.between(1, 250000)]
-    # past 10 ft the field mixes in inches (spikes at 12, 24, 36) and the 99 placeholder
+    # Retain raw depth codes 0..10 as an explicit modeling assumption.
+    # The organizer labels the field inches/feet; physical units remain unresolved.
     df = df[df.depth.notna() & df.depth.between(0, 10)]
     df['log_coverage'] = np.log1p(df.coverage)
     df = df.merge(summary, on=['storm', 'county'], how='inner', validate='many_to_one')
@@ -58,7 +59,7 @@ def new_model():
     # tweedie keeps predictions above $0, which squared error did not on Beryl
     return XGBRegressor(n_estimators=400, max_depth=5, learning_rate=0.05, subsample=0.8, colsample_bytree=0.8,
                         objective='reg:tweedie', tweedie_variance_power=1.5,
-                        monotone_constraints={'depth': 1, 'log_coverage': 1}, random_state=42)
+                        monotone_constraints={'depth': 1, 'log_coverage': 1}, random_state=42, n_jobs=2)
 
 
 def test_result(train, test):
@@ -70,16 +71,17 @@ def test_result(train, test):
     model_mae = mean_absolute_error(test.damage, pred)
     return {'train_n': len(train), 'test_n': len(test), 'baseline_mae': base_mae, 'model_mae': model_mae,
             'improvement_pct': 100 * (1 - model_mae / base_mae), 'r2': r2_score(test.damage, pred),
-            'zero_share': float(np.mean(pred == 0))}
+            'zero_share': float(np.mean(pred == 0)), 'zero_baseline_mae': float(np.mean(np.abs(test.damage))),
+            'test_mean_damage': float(test.damage.mean()), 'mean_prediction': float(pred.mean())}
 
 
 def main():
     df, summary = load()
 
-    # test 1: homes the model never saw, from the same four storms
+    # Random claim-record split; unique homes cannot be identified.
     train, test = train_test_split(df, test_size=0.2, random_state=42)
     mixed = test_result(train, test)
-    # test 2: a whole storm the model never saw
+    # Beryl excluded from fitting, but already inspected during project development.
     unseen = test_result(df[df.storm != 'Beryl'], df[df.storm == 'Beryl'])
 
     model = new_model()
@@ -114,19 +116,24 @@ def main():
 
     payload = {
         'eligible_n': len(df), 'mixed_test': mixed, 'unseen_storm_test': unseen,
+        'scope': {'depth': 'Raw recorded code 0..10; inches/feet ambiguity unresolved', 'evaluation': 'Retrospective development checks; random rows are not distinct homes', 'scenario': 'Reuses recorded depth and coverage for each claim record with Harvey weather; repeats across storms can occur'},
+        'cohort_counts': df.groupby(['storm','county','zone']).size().rename('claims').reset_index().to_dict('records'),
         'importance': {k: float(v) for k, v in sorted(grouped.items(), key=lambda kv: -kv[1])},
         'depths': depths, 'coverages': coverages,
         'grid': [[r.storm, r.county, r.zone, r.depth, r.coverage, round(float(r.prediction))] for r in grid.itertuples()],
-        'zips': [{'zip': r.reportedZipCode, 'county': r.county, 'homes': int(r.homes), 'average': float(r.average), 'total': float(r.total)}
+        'zips': [{'zip': r.reportedZipCode, 'county': r.county, 'records': int(r.homes), 'average': float(r.average), 'total': float(r.total)}
                  for r in zips.head(10).itertuples()],
-        'counties': [{'county': r.county, 'homes': int(r.homes), 'average': float(r.average), 'total': float(r.total)}
+        'counties': [{'county': r.county, 'records': int(r.homes), 'average': float(r.average), 'total': float(r.total)}
                      for r in counties.itertuples()],
     }
+    model.save_model(ROOT / 'results' / 'predict_model.ubj')
+    (ROOT / 'results' / 'predict_data.json').write_text(json.dumps(payload), encoding='utf-8')
     (ROOT / 'demo' / 'predict.js').write_text('window.PREDICT_DATA=' + json.dumps(payload) + ';\n', encoding='utf-8')
-    (ROOT / 'results' / 'predict_metrics.json').write_text(json.dumps({k: payload[k] for k in ['eligible_n', 'mixed_test', 'unseen_storm_test', 'importance']}, indent=2), encoding='utf-8')
-    print(json.dumps({k: payload[k] for k in ['eligible_n', 'mixed_test', 'unseen_storm_test', 'importance']}, indent=2))
+    (ROOT / 'results' / 'predict_metrics.json').write_text(json.dumps({k: payload[k] for k in ['eligible_n', 'mixed_test', 'unseen_storm_test', 'importance', 'scope']}, indent=2), encoding='utf-8')
+    print(json.dumps({k: payload[k] for k in ['eligible_n', 'mixed_test', 'unseen_storm_test', 'importance', 'scope']}, indent=2))
     print(payload['zips'][:5])
 
 
 if __name__ == '__main__':
     main()
+
