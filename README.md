@@ -2,21 +2,20 @@
 
 A Track 1 hurricane preparedness and recovery research demo for the Code[Coogs] AI Hackathon on October 23, 2026.
 
-Recovery Lens connects three tasks: replay a six-hour wind outlook, inspect historical recovery damage, and create an editable outreach-capacity scenario. It works offline in a single browser file and includes reproducible analysis and visible limitations.
+Recovery Lens opens with a Decision Room: allocate a fixed appointment budget, stress-test the county mix across historical storms, compare simple strategies, and export a decision receipt. A six-hour wind replay, historical recovery atlas, and assumed-request capacity planner support the decision workflow. It works offline in a single browser file and includes reproducible analysis and visible limitations.
 
-![Wind replay preview](Recovery_Lens_Preview.png)
+![Decision Room preview](Recovery_Lens_Preview.png)
 
 ## Start here
 
-Open **OPEN_DEMO.html** in this repository, choose **Download raw file**, and open the downloaded file in your browser. No installation, server, API key, or additional plugin is required.
+Open **OPEN_DEMO.html** here, choose **Download raw file**, and open the downloaded file in your browser. Download and extract **Houston_Recovery_Lens.zip** for the complete runnable folder layout, source data, results, verification, and multi-file demo. Selected source files at the repository root are for review. No API key or additional plugin is required.
 
-Download and extract **Houston_Recovery_Lens.zip** for the complete folder layout described below, including `demo/`, `data/`, `results/`, and `verification/`. Selected source files are also directly viewable here for review. `wind.js` contains the replay and capacity-allocation interface logic; the complete runnable multi-file demo is inside the ZIP.
-
-1. **Wind replay:** select a weather window and county, move the cutoff hour, compare the model with persistence, and reveal the recorded following six hours.
-2. **Recovery atlas:** compare observed building damage among eligible flood insurance claim records across four storms and five counties.
-3. **Capacity plan:** edit assumed appointment requests, set available slots, review the allocation, and export the assumptions and plan together.
-4. **Evidence:** inspect model selection, every evaluation window, the severe-peak weakness, and the earlier rejected financial model.
-5. **Pitch guide:** follow the two-minute walkthrough and practice the answers.
+1. **Decision Room:** edit a budget, choose historical scenarios, compare equal / pooled-historical / maximin allocation, and export a readable HTML receipt with its full calculation record. The default 100-slot exercise scores 41.8% for equal allocation and 59.2% for the rounded stress-tested mix on worst-scenario historical distributional overlap. This is scenario fit, not people helped or forecast accuracy.
+2. **Wind replay:** select a weather window and county, move the cutoff hour, compare the model with persistence, and reveal the recorded following six hours.
+3. **Recovery atlas:** compare observed building damage among eligible flood insurance claim records across four storms and five counties.
+4. **Capacity plan:** edit assumed appointment requests, set available slots, review the allocation, and export the assumptions and plan together.
+5. **Evidence:** inspect model selection, every evaluation window, the severe-peak weakness, and the earlier rejected financial model.
+6. **Pitch guide:** follow the two-minute walkthrough and practice the answers.
 
 The standalone HTML embeds all demo assets and data, including typography fallbacks. The multi-file demo may use an internet font when available. The GitHub repository stores the project privately; it is not a hosted app URL.
 
@@ -90,3 +89,7 @@ Only load serialized model objects from this project or another trusted source. 
 Additional weather: [Open-Meteo Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api), Copernicus ERA5 reanalysis, CC BY 4.0. Request URLs explicitly set mph, inches, ERA5, and America/Chicago. Responses, source hashes, units, dates, and attribution are retained in `data/external_validation/`. Added-window names and dates come from the supplied track file; local impact and storm attribution were not independently verified.
 
 AI coding assistance was used and is disclosed in the presentation. No user interviews, field validation, operational performance, or independent authorship are invented.
+
+## Reproduce the Decision Room
+
+Run `python optimize_rehearsal.py` after generating `results/demo_data.json`. This writes all 15 nonempty historical-scenario combinations to `results/decision_data.json`. The interface performs deterministic largest-remainder rounding for the chosen budget and recalculates scores. Run `node verification/check_decision.cjs` to check 315 policy/budget/scenario combinations. The optimization uses known historical mixes; it is descriptive decision analysis, not predictive validation.

@@ -1,3 +1,7 @@
+# Decision Room: the distinctive workflow
+
+Allocate a fixed appointment budget, stress-test it against four historical county claim distributions, compare equal and pooled-history baselines, and export a decision receipt. Default 100-slot worst-scenario overlap: equal 41.8%, pooled history 37.3%, rounded maximin 59.2%. These scores describe fit to selected historical mixes, not future demand, service outcomes, or independent model validation. The separate wind replay supplies the machine-learning experiment.
+
 # Houston Recovery Lens
 
 ## Problem and user

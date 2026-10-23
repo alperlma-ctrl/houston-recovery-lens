@@ -1,30 +1,20 @@
 # Houston Recovery Lens Presentation Guide
 
-## Your two minute pitch
+## Two-minute walkthrough
 
-“A storm has two timelines: the next few hours of wind, and the months of recovery afterward. We built Recovery Lens to connect a short-term weather experiment with historical recovery evidence and a practical planning scenario.
+**0:00 — The constraint.** “A recovery desk has 100 appointments. Dividing them equally feels reasonable, but Houston's storm footprints differ.” Show the Decision Room with all four scenarios selected.
 
-“First, this is a replay of Beryl. At the selected hour, our model uses only current and earlier weather readings to estimate the peak gust over the following six hours. I can move the cutoff, compare with a simple persistence baseline, and reveal the recorded outcome.
+**0:25 — The reveal.** “Equal allocation has 41.8% alignment in its weakest historical scenario. Pooling claim counts scores 37.3%; the largest storms dominate.” Click **Apply stress-tested mix**. “Balancing the weakest scenario raises the overlap to 59.2%.”
 
-“We trained on Harvey and Imelda and selected the model using Nicholas. On the Beryl development replay, average error was about five point six miles per hour, about fourteen percent lower than persistence. We then checked the frozen model on three additional 2026 weather windows. Average error was about three point five miles per hour, roughly four percent lower than persistence.
+**0:55 — The tradeoff.** Uncheck Nicholas and apply the mix again. Show that different assumptions produce a different plan. “This is historical claim-mix overlap, not predicted demand or people helped.” Export the decision receipt, which records allocations, source counts, scenarios, baseline comparisons, formula, and limits.
 
-“These are retrospective results. Severe Beryl peaks remain difficult. When the current gust exceeds the training range, the demo labels a persistence fallback instead of trusting the tree model to extrapolate.
+**1:20 — The AI evidence.** Open Wind replay. Reveal the default Beryl outcome. “Our separate six-hour gust model uses current and past weather only. Its Beryl development replay error is about 14% below persistence, but severe peaks remain difficult.”
 
-“Next, the recovery atlas compares observed building damage among sixty thousand eligible insured claim records. For Harris County, we can compare Beryl with Harvey and inspect a flood-zone cohort. These claims do not represent every home or every uninsured loss.
+**1:45 — The close.** “Recovery Lens connects AI evidence to a decision you can question, change, and document. Before operational use, we need verified requests, urgency and travel constraints, and issue-time forecasts.”
 
-“Finally, the capacity planner turns editable assumed appointment requests into a whole-slot allocation. I can change capacity, review the county split, and export the assumptions with the plan.
+## Explain the distinction
 
-“The demo works offline and the analysis is reproducible. Next we would test actual issue-time forecasts, more severe storms, and locally verified recovery requests before operational use.”
-
-## Practice these clicks once
-
-1. Open **OPEN_DEMO.html**. It starts on **Wind replay**, **Beryl**, **Harris**, July 8 at midnight.
-2. Point to the estimated six-hour peak and the carry-current-gust baseline. Click **Reveal what happened**. Explain that this is a reconstructed historical record, and a model can be closer than a baseline while still having a large error.
-3. Move the cutoff with the slider or arrow buttons. **Jump to 6h before recorded peak** is an explicitly historical navigation shortcut; it is not a prediction of when the peak occurs.
-4. Open **Evidence**. Point to the separate training, selection, development replay, and added-window checks. Acknowledge the severe-peak weakness.
-5. Open **Recovery atlas**. On Harris, compare **Beryl** and **Harvey**. Eligible Harris median building damage is $11,010 for Beryl and $71,703 for Harvey.
-6. Open **Capacity plan**. Change the total appointment slots from 100 to 150. The assigned slots change while respecting the assumed request counts. Click **Download capacity plan**.
-7. Finish with the next step: issue-time forecasting data and locally verified requests.
+The allocation is transparent linear optimization; the wind replay is machine learning. Do not call the overlap score prediction accuracy or claim that a higher score means more people served. The linear program optimizes continuous shares, then the demo rounds to whole slots and recalculates scores. It does not claim the rounded plan is globally optimal among integer plans. Low allocations can be an artifact of the limited objective; actual service plans need additional constraints. Selected scenarios are known during optimization and evaluation.
 
 ## Answers judges may ask for
 
