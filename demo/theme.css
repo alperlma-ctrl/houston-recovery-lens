@@ -1,0 +1,39 @@
+/* Control Room theme: carries the Decision Room's dark teal, gold, serif and monospace look to the other tabs */
+body:not(.decision-page){--t-bg:#0c2026;--t-card:#142d34;--t-card2:#10262d;--t-field:#0c2026;--t-line:#30484f;--t-ink:#f1eddf;--t-muted:#a5b8bb;--t-accent:#edc66b;--t-hi:#edc66b;--t-on-hi:#142b31;--t-warm:#e39a5b;--t-bar:#5d7a73;--t-link:#edc66b;--t-feature:#1c3a40;--t-feature-line:#4d6a62;--t-feature-ink:#f1eddf;--t-head:Georgia,serif;--t-label:ui-monospace,Consolas,monospace;--t-h1w:400;--t-warn-bg:#2d2a1f;--t-warn-line:#6e5f39;--t-warn-ink:#f2dfab}
+body:not(.decision-page){background:var(--t-bg);color:var(--t-ink);
+ --ink:var(--t-ink);--muted:var(--t-muted);--line:var(--t-line);--cream:var(--t-bg);--white:var(--t-field);--green:var(--t-accent);--lime:var(--t-hi);--orange:var(--t-warm)}
+body:not(.decision-page) main{background:var(--t-main,transparent)}
+body:not(.decision-page) h1,body:not(.decision-page) h2,body:not(.decision-page) h3{font-family:var(--t-head);color:var(--t-head-ink,var(--t-ink))}
+body:not(.decision-page) h1{font-weight:var(--t-h1w,650)}
+body:not(.decision-page) .eyebrow,body:not(.decision-page) .metric .label,body:not(.decision-page) .pill,body:not(.decision-page) .stormbar>span{font-family:var(--t-label)}
+body:not(.decision-page) .eyebrow{color:var(--t-hi)}body:not(.decision-page) .eyebrow:before{background:var(--t-hi)}
+body:not(.decision-page) .card,body:not(.decision-page) .metric,body:not(.decision-page) .panel,body:not(.decision-page) .replay-toolbar,body:not(.decision-page) .storm-options,body:not(.decision-page) .legacy-evidence{background:var(--t-card);border-color:var(--t-line);color:var(--t-ink)}
+body:not(.decision-page) .metric.accent,body:not(.decision-page) .outlook{background:var(--t-feature);border-color:var(--t-feature-line);color:var(--t-feature-ink)}
+body:not(.decision-page) .metric.accent strong,body:not(.decision-page) .outlook-value{color:var(--t-hi)}
+body:not(.decision-page) .storm.active{background:var(--t-hi);color:var(--t-on-hi)}
+body:not(.decision-page) .map-bottom,body:not(.decision-page) .scrubber,body:not(.decision-page) .replay-caption,body:not(.decision-page) .insight,body:not(.decision-page) .split>div{background:var(--t-card2);color:var(--t-muted)}
+body:not(.decision-page) .observed{background:var(--t-card2);border-color:var(--t-line)}
+body:not(.decision-page) .observed .label,body:not(.decision-page) .observed p,body:not(.decision-page) .range{color:var(--t-muted);border-color:var(--t-line)}
+body:not(.decision-page) .observed .value{color:var(--t-hi)}
+body:not(.decision-page) .hero-note{background:var(--t-card2);border-color:var(--t-line);color:var(--t-muted)}
+body:not(.decision-page) .hero-note strong{color:var(--t-hi)}
+body:not(.decision-page) select,body:not(.decision-page) input[type=number],body:not(.decision-page) .plan-fields input,body:not(.decision-page) .demand-row input,body:not(.decision-page) .secondary{background:var(--t-field);color:var(--t-ink);border-color:var(--t-line)}
+body:not(.decision-page) .primary,body:not(.decision-page) .reveal-button{background:var(--t-hi);color:var(--t-on-hi)}
+body:not(.decision-page) .bartrack{background:var(--t-card2)}
+body:not(.decision-page) .barfill{background:var(--t-bar)}body:not(.decision-page) .barrow.active .barfill{background:var(--t-hi)}
+body:not(.decision-page) .demand-row,body:not(.decision-page) .evidence-table th,body:not(.decision-page) .evidence-table td{border-color:var(--t-line)}
+body:not(.decision-page) .source-tag{background:var(--t-card2);color:var(--t-hi)}
+body:not(.decision-page) .warning{background:var(--t-warn-bg);border-color:var(--t-warn-line);color:var(--t-warn-ink)}
+body:not(.decision-page) .quote,body:not(.decision-page) .data-note strong{color:var(--t-ink)}
+body:not(.decision-page) a{color:var(--t-link)}
+body:not(.decision-page) footer{border-color:var(--t-line);color:var(--t-muted)}
+body:not(.decision-page) .map-wrap svg>rect:first-child{fill:var(--t-card2)}
+body:not(.decision-page) .county{stroke:var(--t-card)}
+body:not(.decision-page) .county.unsupported{fill:var(--t-card2);stroke:var(--t-line)}
+body:not(.decision-page) .map-label{fill:var(--t-ink);stroke:var(--t-card)}
+body:not(.decision-page) .map-label.unsupported{fill:var(--t-muted)}
+body:not(.decision-page) svg text[fill="#63777e"],body:not(.decision-page) svg text[fill="#a5bab6"]{fill:var(--t-muted)}
+body:not(.decision-page) svg line[stroke="#e4e9e4"],body:not(.decision-page) svg line[stroke="#dfe5df"]{stroke:var(--t-line)}
+body:not(.decision-page) svg [fill="#173d44"]{fill:var(--t-ink)}body:not(.decision-page) svg [stroke="#173d44"]{stroke:var(--t-ink)}
+body:not(.decision-page) svg [fill="#eef4e9"]{fill:var(--t-card2)}
+body:not(.decision-page) .chart-key i[style*="#173d44"]{background:var(--t-ink)!important}
