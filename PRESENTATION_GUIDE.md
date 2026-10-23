@@ -1,87 +1,89 @@
 # Houston Recovery Lens Presentation Guide
 
-You are presenting a working historical data explorer with an honest model experiment. You do not need to explain every line of code. Focus on what the data means, what the demo does, and what testing revealed.
+## Your two minute pitch
 
-## Two minute pitch
+“A storm has two timelines: the next few hours of wind, and the months of recovery afterward. We built Recovery Lens to connect a short-term weather experiment with historical recovery evidence and a practical planning scenario.
 
-“Houston's storms can leave very different recovery needs. We built Houston Recovery Lens to help people understand the building damage recorded after major storms.
+“First, this is a replay of Beryl. At the selected hour, our model uses only current and earlier weather readings to estimate the peak gust over the following six hours. I can move the cutoff, compare with a simple persistence baseline, and reveal the recorded outcome.
 
-“We used the organizer's flood insurance claims, hourly weather, and county boundaries. We cleaned the records and joined them by county and storm. Our final analysis covers about sixty thousand eligible single-family claim records across four storms and five counties.
+“We trained on Harvey and Imelda and selected the model using Nicholas. On the Beryl development replay, average error was about five point six miles per hour, about fourteen percent lower than persistence. We then checked the frozen model on three additional 2026 weather windows. Average error was about three point five miles per hour, roughly four percent lower than persistence.
 
-“Here is Harris County after Beryl. The middle recorded building damage amount was about eleven thousand dollars per eligible claim. If I switch to Harvey, it was about seventy-two thousand dollars. These are historical comparisons among selected insured claims. They are not estimates for every home in Houston.
+“These are retrospective results. Severe Beryl peaks remain difficult. When the current gust exceeds the training range, the demo labels a persistence fallback instead of trusting the tree model to extrapolate.
 
-“The map lets us compare counties, and the flood-zone filter lets us examine more specific groups. The rainfall chart adds context. We can export the county comparison as a spreadsheet-friendly file.
+“Next, the recovery atlas compares observed building damage among sixty thousand eligible insured claim records. For Harris County, we can compare Beryl with Harvey and inspect a flood-zone cohort. These claims do not represent every home or every uninsured loss.
 
-“We also tested machine learning. We trained on Harvey and Imelda, selected a model using Nicholas, and held Beryl out for testing. The Beryl test exposed a failure: every prediction had collapsed to zero. A lower error against one weak baseline did not make the model useful, so we rejected it for planning use.
+“Finally, the capacity planner turns editable assumed appointment requests into a whole-slot allocation. I can change capacity, review the county split, and export the assumptions with the plan.
 
-“The result is a working recovery explorer that keeps historical evidence separate from unreliable predictions. Our next steps would be more independent storms, property and exposure information, and a fresh storm test before offering forecasts.”
+“The demo works offline and the analysis is reproducible. Next we would test actual issue-time forecasts, more severe storms, and locally verified recovery requests before operational use.”
 
-## Click by click demo
+## Practice these clicks once
 
-1. Open the demo, preferably on a laptop. Select **Explore storms**.
-2. Start on **Beryl**, **Harris**, **All zones**. The observed median is **$11,010**, based on **866** eligible Harris records.
-3. Click **Harvey**. Harris's observed median becomes **$71,703**, based on **38,920** eligible records.
-4. Return to **Beryl**, then select **Zone X**. Explain that this is a subset of recorded claims, not a measure of flooding probability.
-5. Click another county on the map. The county detail, rainfall chart, and comparison bars update together.
-6. Click **Export county comparison** to demonstrate a usable output. It exports all-zone comparisons for that county across all four storms.
-7. Open **Model evidence**. Point to the train/select/test roles and the rejected model result.
+1. Open **OPEN_DEMO.html**. It starts on **Wind replay**, **Beryl**, **Harris**, July 8 at midnight.
+2. Point to the estimated six-hour peak and the carry-current-gust baseline. Click **Reveal what happened**. Explain that this is a reconstructed historical record, and a model can be closer than a baseline while still having a large error.
+3. Move the cutoff with the slider or arrow buttons. **Jump to 6h before recorded peak** is an explicitly historical navigation shortcut; it is not a prediction of when the peak occurs.
+4. Open **Evidence**. Point to the separate training, selection, development replay, and added-window checks. Acknowledge the severe-peak weakness.
+5. Open **Recovery atlas**. On Harris, compare **Beryl** and **Harvey**. Eligible Harris median building damage is $11,010 for Beryl and $71,703 for Harvey.
+6. Open **Capacity plan**. Change the total appointment slots from 100 to 150. The assigned slots change while respecting the assumed request counts. Click **Download capacity plan**.
+7. Finish with the next step: issue-time forecasting data and locally verified requests.
 
-## Likely questions
+## Answers judges may ask for
 
-**What problem does this solve?**
+**What is the AI doing?**
 
-It makes historical recovery evidence easier to inspect and explain. A recovery team can compare the damage recorded after different storms and identify questions for outreach and further investigation.
+Gradient boosting combines small decision trees to learn patterns in recent wind, pressure, rainfall, direction, and reference location. Its target is the maximum gust in the following six hourly observations.
 
-**Where is the AI or data science?**
+**What is persistence?**
 
-The project cleans and joins datasets, creates geographic and temporal summaries, fits two candidate prediction models, compares them against a baseline, and evaluates a later storm. Data analysis is the foundation of the final tool.
+A simple baseline that assumes the future peak equals the current gust. A more complex model needs to show a useful improvement over it.
 
-**Why is the model not used?**
+**How did you avoid looking ahead?**
 
-All Beryl predictions were clipped to zero. Its average error matched an always-zero diagnostic. It did not pass a useful generalization check.
+Every input is from the current hour or the preceding six hours. The target starts at the following hour. We separate whole storms rather than randomly mixing adjacent hours. We also changed future gust, pressure, and rain values in a test and confirmed that the current feature row did not change.
 
-**Can this tell me my home is safe or what my insurer will pay?**
+**Are these live forecasts?**
 
-No. It summarizes historical assessed structural damage among selected insured claims. The data does not cover all properties, and damage is different from payout.
+No. This is a retrospective hindcast using reanalysis, which reconstructs historical weather. The project has not demonstrated operational performance using forecasts or measurements available at the original issue time.
 
-**What is the median?**
+**Is Beryl an untouched final test?**
 
-The middle amount. Half the eligible records have lower damage and half have higher damage.
+No. Beryl was already inspected during development, so we call it a development replay. The extra 2026 windows were downloaded after the model candidates and Nicholas selection rule were fixed, and their results were not used for tuning.
 
-**What is a baseline?**
+**What are the additional 2026 windows?**
 
-A simple comparison method. Here, one baseline always predicts the middle damage amount from the training records. We also checked what always predicting zero would do.
+Dates and names came from the organizer's tracks. We separately downloaded ERA5 weather for those windows at the same five county reference coordinates. They are labeled Arthur, Bertha, and Edouard 2026 windows. Their local impact and storm attribution were not independently verified, so we describe them as weather-window checks.
 
-**What is mean absolute error?**
+**What happens during severe wind?**
 
-The average size of a prediction's dollar error, counting overestimates and underestimates as positive differences.
+Beryl's highest-gust tenth of windows had about 18.9 mph average error and low estimates. The interface flags current gusts beyond the training maximum and uses a labeled persistence fallback there. That check cannot detect every future severe peak, and it is not a safety clearance. Reported model scores are for the raw fitted model, not an inflated claim for the interface fallback.
 
-**Why is the weather not a forecast?**
+**Is the shaded band a confidence interval?**
 
-The supplied weather reconstructs what happened over the whole historical storm window. We did not have forecasts issued before each storm.
+It is the middle eighty percent of signed Nicholas validation errors added to the model estimate. It is a descriptive reference band with no guaranteed coverage on another storm. It is not applied to the persistence fallback.
 
-**Why are some county results hidden?**
+**What does the recovery atlas measure?**
 
-The demo suppresses damage summaries with fewer than twenty eligible records. Four boundary counties have no matched claims and weather at all.
+Assessed structural damage among selected single-family flood insurance claim records with known damage and coverage of $1–$250,000. It does not estimate flood probability, every household's damage, or insurance payout. Values are nominal dollars without inflation adjustment.
 
-**Does Zone X mean no flood risk?**
+**What does the capacity planner optimize?**
 
-No. It is a recorded zone label. We can see claims in that category, but the fraction of claims is not the chance that a home will flood.
+It allocates appointment slots under user-specified capacity and request assumptions. It attempts a county floor, then distributes remaining slots proportionally using largest remainders. It is transparent arithmetic, not a learned prediction of need. Insurance records omit uninsured residents, so real demand must be verified separately.
 
-**What would make the predictive model stronger?**
+**What happened to the earlier financial model?**
 
-More independent storms, consistent property and exposure data, forecast-time inputs, stronger baselines, and another storm that has not been used for model development.
+It predicted zero for all Beryl claims and was rejected. Its failed results remain visible in the evidence section. The atlas uses observed damage summaries instead.
+
+**What makes this different from a map?**
+
+It connects a cutoff-by-cutoff model experiment, a historical recovery atlas, and an exportable capacity plan. Judges can inspect the model's inputs, reveal outcomes, compare a baseline, change planning assumptions, and review the source.
 
 **Did you use AI assistance?**
 
-“Yes. I used an AI coding assistant to help build the analysis and demo. I reviewed the results and can explain the data, testing, and limitations.”
+“Yes. I used an AI coding assistant to help build the project. I can explain the data, baseline, model split, replay results, planning assumptions, and limitations.” Do not claim that you wrote everything independently or that real users validated it if they have not.
 
 ## Before judging
 
-- Open the demo in advance and keep the offline copy available.
-- Practice the clicks once. Read the explanation of the failed model.
-- Add your actual name and any teammates when introducing the project. Do not invent a team.
-- Present the historical explorer as the finished product and the prediction model as an evaluated experiment.
-- Be ready by **4:30 p.m. Central on October 23, 2026**, according to the supplied packet. Follow any updated organizer instructions.
-
-The packet describes a live demo and short pitch; it does not require an upload. The private hosted link is for your signed-in presentation. Use the offline copy if connectivity is unreliable.
+- Practice the demo once and keep the standalone HTML file available offline.
+- Keep the pitch close to two minutes. Use your own words rather than reading every metric.
+- Introduce yourself and any actual teammates. No team names or user validation have been invented.
+- The supplied packet says to be ready by **4:30 p.m. Central on October 23, 2026** for a live demo and short pitch. Follow any updated organizer instructions.
+- The GitHub repository is private and stores the project. It is not a hosted app URL. Present the local demo or your signed-in repository.
