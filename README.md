@@ -22,19 +22,35 @@ Historical claim damage is not flood probability, total community loss, or an in
 
 We trained on Harvey and Imelda, selected among a baseline and two candidate models using Nicholas, and checked Beryl separately. Ridge regression had the lowest Nicholas validation error, but every Beryl prediction clipped to zero. Its $19,724 average absolute error matched an always-zero diagnostic, and its test R² was −0.626.
 
-**The model was rejected for planning use.** The finished explorer uses observed historical aggregates. Its evidence screen reports the failure rather than presenting it as useful prediction.
+**That first model was rejected.** Its evidence screen reports the failure rather than presenting it as useful prediction.
+
+## Final model: damage estimator
+
+The first model left out water depth, the strongest signal for flood damage. The final model (`predict_model.py`) is an XGBoost regressor that uses water depth, building coverage, flood zone, county, and the storm's total rain and peak gust. It trains on 54,919 eligible single-family claims with a known water depth of 0–30 ft.
+
+| Test | Model error | Baseline error | Improvement |
+| --- | ---: | ---: | ---: |
+| 20% of homes held out | $44,378 | $54,758 | 19% |
+| Beryl held out entirely | $20,631 | $47,968 | 57% |
+
+On Beryl the model also beats always predicting $0 ($25,021) and predicts $0 for only 6% of homes, compared with 100% for the first model. Its typical Beryl prediction ($17,659) is close to the actual typical damage ($15,270). Ranking individual homes in a brand-new storm is still rough (R² −0.28), so the demo presents it as an estimate of damage levels, not an exact figure per home.
+
+The demo's **Predict damage** page uses this model for a one-home estimator and a "Harvey hit again" scenario that ranks zip codes by predicted total damage.
 
 ## Files for review
 
 - `OPEN_DEMO.html` — one-file browser demo with all aggregate data embedded
 - `analysis.ipynb` — notebook with six executed code cells and plain-language explanations
-- `train_model.py` — reproducible cleaning, validated joins, training, selection, and testing
+- `train_model.py` — reproducible cleaning, validated joins, training, selection, and testing of the first model
+- `predict_model.py` — trains and tests the final damage estimator and writes `demo/predict.js`
+- `demo/` — source for the browser demo (`OPEN_DEMO.html` is these files combined into one page)
+- `results/predict_metrics.json` — test results for the final model
 - `requirements.txt` — the Python package versions used
 - `PRESENTATION_GUIDE.md` — pitch and judge questions
 - `data_dictionary.md` — field meanings, filters, joins, and derived values
 - `Houston_Recovery_Lens.zip` — the complete folder structure, original data, and results
 
-To rerun the analysis, extract the complete project ZIP, open its `HoustonStormReady` folder, install its `requirements.txt` in Python 3.12, and run `python train_model.py`. The top-level source files here are provided for easy inspection; the full dataset and results are in the project ZIP. Do not treat the archived failed model as suitable for planning.
+To rerun the analysis, extract the complete project ZIP, open its `HoustonStormReady` folder, install its `requirements.txt` in Python 3.12, and run `python train_model.py`. To retrain the final model, copy `predict_model.py` into that folder and run `python predict_model.py`. The top-level source files here are provided for easy inspection; the full dataset and results are in the project ZIP. Do not treat the archived failed model as suitable for planning.
 
 ## Sources
 
