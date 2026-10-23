@@ -74,5 +74,17 @@
       "ZIP aggregation rather than aid priority",
       "Beryl development status and negative R2"
     ]
+  },
+  "external_presenter_guide": {
+    "removed_from_app": true,
+    "app_navigation_tabs": 6,
+    "guide_sections": 8,
+    "guide_words": 3403,
+    "checked": [
+      "no embedded pitch functions",
+      "eight navigation anchors",
+      "browser layout",
+      "exact action labels and verified model values"
+    ]
   }
 }

@@ -17,7 +17,7 @@ Open **OPEN_DEMO.html** here, choose **Download raw file**, and open the downloa
 3. **Recovery atlas:** compare observed building damage among eligible flood insurance claim records across four storms and five counties.
 4. **Capacity plan:** edit assumed appointment requests, set available slots, review the allocation, and export the assumptions and plan together.
 5. **Evidence:** inspect model selection, every evaluation window, the severe-peak weakness, and the earlier rejected financial model.
-6. **Pitch guide:** follow the two-minute walkthrough and practice the answers.
+The presenter guide is external: open **PRESENTATION_GUIDE.html** for the two-minute route, detailed click-by-click instructions, reset steps, verified results, and judge answers. It is not a tab in the app.
 
 The standalone HTML embeds all demo assets and data, including typography fallbacks. The multi-file demo may use an internet font when available. The GitHub repository stores the project privately; it is not a hosted app URL.
 
@@ -72,7 +72,7 @@ An optional historical claim mix scales a storm's eligible claim shares into 200
 - `train_wind_model.py`: causal six-hour samples, whole-storm selection, frozen-model checks, and replay outputs.
 - `fetch_external_weather.py`: reproducible additional ERA5 requests derived from the supplied 2026 tracks.
 - `make_evidence_figure.py`: renders the comparison figure from saved metrics.
-- `PRESENTATION_GUIDE.md`: two-minute pitch, click sequence, and judge questions.
+- `PRESENTATION_GUIDE.html` and `PRESENTATION_GUIDE.md`: external presenter playbook with exact actions, spoken lines, resets, and judge questions.
 - `JUDGES_BRIEF.md`: concise problem, method, measured results, and limits.
 - `data_dictionary.md`: fields, joins, derived features, and scenario definitions.
 - `data/`: original organizer extracts and a separate `external_validation/` folder.
