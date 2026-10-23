@@ -28,14 +28,20 @@ We trained on Harvey and Imelda, selected among a baseline and two candidate mod
 
 ## Final model: damage estimator
 
-The first model left out water depth, the strongest signal for flood damage. The final model (`predict_model.py`) is an XGBoost regressor that uses water depth, building coverage, flood zone, county, and the storm's total rain and peak gust. It trains on 54,919 eligible single-family claims with a known water depth of 0–30 ft.
+The first model left out water depth, the strongest signal for flood damage. The final model (`predict_model.py`) is an XGBoost regressor that uses water depth, building coverage, flood zone, county, and the storm's total rain and peak gust. It trains on 54,000 eligible single-family claims with a known water depth of 0–10 ft.
+
+Three choices keep its estimates sensible:
+
+- **Depth is limited to 0–10 ft.** Past 10 ft the depth field mixes in inches (counts spike at 12, 24, and 36) and a 99 placeholder.
+- **More water or more coverage never lowers the estimate.** XGBoost's monotone constraints enforce this. Without them, 8 ft of water could show less damage than 4 ft.
+- **A Tweedie objective keeps predictions above $0.** With plain squared error and the constraints, 31% of Beryl predictions dropped to $0.
 
 | Test | Model error | Baseline error | Improvement |
 | --- | ---: | ---: | ---: |
-| 20% of homes held out | $44,378 | $54,758 | 19% |
-| Beryl held out entirely | $20,631 | $47,968 | 57% |
+| 20% of homes held out | $45,440 | $56,263 | 19% |
+| Beryl held out entirely | $21,700 | $47,623 | 54% |
 
-On Beryl the model also beats always predicting $0 ($25,021) and predicts $0 for only 6% of homes, compared with 100% for the first model. Its typical Beryl prediction ($17,659) is close to the actual typical damage ($15,270). Ranking individual homes in a brand-new storm is still rough (R² −0.28), so the demo presents it as an estimate of damage levels, not an exact figure per home.
+On Beryl the model also beats always predicting $0 ($24,986) and predicts $0 for none of the homes, compared with 100% for the first model. Its typical Beryl prediction ($11,823) is in the range of the actual typical damage ($15,232). Ranking individual homes in a brand-new storm is still rough (R² −0.37), so the demo presents it as an estimate of damage levels, not an exact figure per home. The estimator shows no number for a storm and county with fewer than 50 claims.
 
 The demo's **Predict damage** page uses this model for a one-home estimator and a "Harvey hit again" scenario that ranks zip codes by predicted total damage.
 

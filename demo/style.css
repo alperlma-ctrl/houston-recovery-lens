@@ -3,3 +3,7 @@
 
 .field:has(input[type=number]){flex-wrap:wrap}
 .field input[type=number]{flex-basis:100%;width:100%;margin-top:6px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--white);color:var(--ink)}
+.field-help{font-size:10px;color:var(--muted);margin:-6px 0 10px}
+.field-msg{font-size:10px;color:var(--orange);margin:-6px 0 10px;min-height:0}
+.field-msg:empty{display:none}
+.observed .value.no-data{font-size:24px;letter-spacing:-.5px}

@@ -38,8 +38,8 @@ def load():
     df['damage'] = pd.to_numeric(df.buildingDamageAmount, errors='coerce')
     df['depth'] = pd.to_numeric(df.waterDepth, errors='coerce')
     df = df[df.damage.notna() & (df.damage >= 0) & df.coverage.between(1, 250000)]
-    # depths over 30 ft (including the 99 placeholder) are not possible inside a house
-    df = df[df.depth.notna() & df.depth.between(0, 30)]
+    # past 10 ft the field mixes in inches (spikes at 12, 24, 36) and the 99 placeholder
+    df = df[df.depth.notna() & df.depth.between(0, 10)]
     df['log_coverage'] = np.log1p(df.coverage)
     df = df.merge(summary, on=['storm', 'county'], how='inner', validate='many_to_one')
     return df, summary
@@ -54,7 +54,11 @@ def features(frame):
 
 
 def new_model():
-    return XGBRegressor(n_estimators=400, max_depth=5, learning_rate=0.05, subsample=0.8, colsample_bytree=0.8, random_state=42)
+    # more water or more coverage should never lower the estimate
+    # tweedie keeps predictions above $0, which squared error did not on Beryl
+    return XGBRegressor(n_estimators=400, max_depth=5, learning_rate=0.05, subsample=0.8, colsample_bytree=0.8,
+                        objective='reg:tweedie', tweedie_variance_power=1.5,
+                        monotone_constraints={'depth': 1, 'log_coverage': 1}, random_state=42)
 
 
 def test_result(train, test):
@@ -85,9 +89,9 @@ def main():
                'Storm rain & wind': importance['rain_total'] + importance['gust_max'],
                'Flood zone': importance.filter(like='zone_').sum(), 'County': importance.filter(like='county_').sum()}
 
-    # grid for the demo's estimator, which blends values between these points
-    depths = [0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 30]
-    coverages = [10000, 25000, 50000, 75000, 100000, 150000, 200000, 250000]
+    # grid for the demo's estimator, which blends between whole feet since claims only record whole feet
+    depths = list(range(0, 11))
+    coverages = [25000, 50000, 75000, 100000, 150000, 200000, 250000]
     rows = []
     for w in summary.to_dict('records'):
         for zone in ['X', 'AE', 'OTHER']:

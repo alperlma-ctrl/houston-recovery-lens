@@ -3,6 +3,7 @@ const D=window.RECOVERY_DATA, GEO=window.COUNTY_GEOJSON, P=window.PREDICT_DATA;
 const state={page:'explore',storm:'Beryl',county:'Harris',zone:'ALL'};
 const est={storm:'Harvey',county:'Harris',zone:'X',depth:3,coverage:250000};
 const clamp=(v,lo,hi)=>Math.min(hi,Math.max(lo,v));
+const MIN_EST_CLAIMS=50;
 const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n);
 const num=n=>new Intl.NumberFormat('en-US').format(n);
 const compact=n=>n>=1e9?'$'+(n/1e9).toFixed(2)+'bn':n>=1e6?'$'+(n/1e6).toFixed(1)+'m':money(n);
@@ -58,17 +59,35 @@ function estimate(){
  if([v00,v10,v01,v11].includes(null))return null;
  return (v00*(1-dt)+v10*dt)*(1-ct)+(v01*(1-dt)+v11*dt)*ct;
 }
-function predict(){const m=P.mixed_test,u=P.unseen_storm_test,value=estimate(),hist=row(est.storm,est.county),maxCounty=Math.max(...P.counties.map(c=>c.total)),maxImp=Math.max(...Object.values(P.importance));
+function estimateView(){
+ const hist=row(est.storm,est.county),claims=hist?hist.claims:0;
+ if(claims<MIN_EST_CLAIMS)return {value:'Not enough data',note:`Only ${num(claims)} ${est.storm} claims in ${est.county} County, too few to estimate. Try another storm or county.`,history:''};
+ const value=estimate();
+ return {value:value==null?'—':money(value),note:`${est.depth} ft of water · ${money(est.coverage)} coverage`,
+  history:`Recorded median for ${est.county} after ${est.storm}, all depths: ${money(hist.median_damage)} across ${num(claims)} claims`};
+}
+function updateEstimate(){const v=estimateView();
+ const el=document.getElementById('est-value');el.textContent=v.value;el.classList.toggle('no-data',!v.value.startsWith('$'));document.getElementById('est-note').textContent=v.note;document.getElementById('est-history').textContent=v.history;}
+// read a typed number: blank or non-numbers keep the last good value, out-of-range values use the nearest limit
+function readNumber(input,lo,hi,label,unit){
+ const v=parseFloat(input.value);
+ if(input.value.trim()===''||isNaN(v))return {value:null,message:`Enter a ${label} from ${unit(lo)} to ${unit(hi)}.`};
+ const used=clamp(v,lo,hi);
+ return {value:used,message:used===v?'':`Using ${unit(used)}, the ${used===hi?'highest':'lowest'} ${label} in our data.`};
+}
+function predict(){const m=P.mixed_test,u=P.unseen_storm_test,view=estimateView(),maxDepth=P.depths.at(-1),minCov=P.coverages[0],maxCov=P.coverages.at(-1),maxCounty=Math.max(...P.counties.map(c=>c.total)),maxImp=Math.max(...Object.values(P.importance));
  return `<div class="page-intro"><div class="eyebrow">WHERE SHOULD HELP GO FIRST?</div><h1>Estimate the damage<br>before the claims arrive.</h1><p>Insurance claims take weeks. Our model estimates a flooded home’s building damage from its water depth, flood zone, coverage, county, and the storm’s rain and wind. Added up by zip code, it shows recovery teams where to send inspectors and aid first.</p></div>
  <section class="metrics" aria-label="Model scorecard"><div class="metric accent"><div class="label">LESS ERROR ON HOMES IT NEVER SAW</div><strong>${Math.round(m.improvement_pct)}%</strong><small>${money(m.model_mae)} vs ${money(m.baseline_mae)} baseline · ${num(m.test_n)} test homes</small></div><div class="metric"><div class="label">LESS ERROR ON A STORM IT NEVER SAW</div><strong>${Math.round(u.improvement_pct)}%</strong><small>Beryl 2024 · ${money(u.model_mae)} vs ${money(u.baseline_mae)} baseline</small></div><div class="metric"><div class="label">STRONGEST SIGNAL</div><strong>${Object.keys(P.importance)[0]}</strong><small>Biggest driver of building damage</small></div><div class="metric"><div class="label">HOMES THE MODEL LEARNED FROM</div><strong>${num(P.eligible_n)}</strong><small>Single-family claims with known water depth</small></div></section>
  <section class="main-grid"><div class="card detail"><div class="detail-top"><div><div class="eyebrow" style="font-size:8px;letter-spacing:1.5px;margin-bottom:7px">TRY THE MODEL</div><h2>Estimate one home</h2></div></div>
  <label class="field" for="est-storm">Storm conditions<select id="est-storm">${Object.keys(D.storm_years).map(s=>`<option value="${s}" ${s===est.storm?'selected':''}>${stormNames[s]} (${D.storm_years[s]})</option>`).join('')}</select></label>
  <label class="field" for="est-county">County<select id="est-county">${Object.values(D.counties).map(c=>`<option ${c===est.county?'selected':''}>${c}</option>`).join('')}</select></label>
  <label class="field" for="est-zone">Flood zone<select id="est-zone"><option value="X" ${est.zone==='X'?'selected':''}>Zone X (“low risk”)</option><option value="AE" ${est.zone==='AE'?'selected':''}>Zone AE (high risk)</option><option value="OTHER" ${est.zone==='OTHER'?'selected':''}>Other / unknown</option></select></label>
- <label class="field" for="est-depth">Water inside the home (feet, 0–30)<input type="number" id="est-depth" min="0" max="30" step="0.1" value="${est.depth}" inputmode="decimal"></label>
- <label class="field" for="est-coverage">Building coverage in dollars ($10,000–$250,000, a stand-in for home value)<input type="number" id="est-coverage" min="10000" max="250000" step="1000" value="${est.coverage}" inputmode="numeric"></label>
- <div class="observed"><span class="label">PREDICTED BUILDING DAMAGE</span><div class="value">${value==null?'—':money(value)}</div><p>${est.depth} ft of water · ${money(est.coverage)} coverage</p><p>${hist&&hist.claims>=20?`Recorded median for ${est.county} after ${est.storm}: ${money(hist.median_damage)} across ${num(hist.claims)} claims`:'Too few recorded claims to compare'}</p></div>
- <div class="insight"><strong>Try this:</strong> keep Zone X and change the water depth from 1 to 4 feet. “Low risk” zones still see serious damage, and many of those owners skip flood insurance.</div></div>
+ <label class="field" for="est-depth">Water inside the home (feet, 0–${maxDepth})<input type="number" id="est-depth" min="0" max="${maxDepth}" step="0.5" value="${est.depth}" inputmode="decimal" aria-describedby="est-depth-help est-depth-msg"></label>
+ <p class="field-help" id="est-depth-help">0 ft means water reached the home but stayed below the floor. Damage levels off past about 4–5 ft, once most of the house is soaked.</p><p class="field-msg" id="est-depth-msg" role="status"></p>
+ <label class="field" for="est-coverage">Building coverage in dollars (${money(minCov)}–${money(maxCov)}, a stand-in for home value)<input type="number" id="est-coverage" min="${minCov}" max="${maxCov}" step="5000" value="${est.coverage}" inputmode="numeric" aria-describedby="est-coverage-msg"></label>
+ <p class="field-msg" id="est-coverage-msg" role="status"></p>
+ <div class="observed"><span class="label">PREDICTED BUILDING DAMAGE</span><div class="value ${view.value.startsWith('$')?'':'no-data'}" id="est-value" aria-live="polite">${view.value}</div><p id="est-note">${view.note}</p><p id="est-history">${view.history}</p></div>
+ <div class="insight"><strong>Try this:</strong> keep Zone X and change the water depth from 1 to 4 feet. The estimate updates as you type. “Low risk” zones still see serious damage, and many of those owners skip flood insurance.</div></div>
  <div class="card chart"><h3>If Harvey hit again: where help goes first</h3><p>Every eligible home given Harvey’s rain and wind for its county · Predicted building damage</p>
  ${P.counties.map(c=>`<div class="barrow"><span>${c.county}<small>${num(c.homes)} homes · ${money(c.average)} avg</small></span><div class="bartrack"><div class="barfill" style="width:${c.total/maxCounty*100}%"></div></div><span class="barvalue">${compact(c.total)}</span></div>`).join('')}
  <table class="evidence-table"><thead><tr><th>Priority zip code</th><th>Homes</th><th>Avg. damage</th><th>Total</th></tr></thead><tbody>${P.zips.map((z,i)=>`<tr><td>${i+1}. ${z.zip} <small>${z.county}</small></td><td>${num(z.homes)}</td><td>${money(z.average)}</td><td>${compact(z.total)}</td></tr>`).join('')}</tbody></table>
@@ -103,12 +122,19 @@ function render(){
  const values=D.history.filter(r=>r.county===state.county);const csv=cols.join(',')+'\r\n'+values.map(r=>cols.map(c=>'"'+String(r.claims<20&&['median_damage','mean_damage','total_recorded_damage'].includes(c)?'SUPPRESSED_SMALL_SAMPLE':r[c]).replaceAll('"','""')+'"').join(',')).join('\r\n');
  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));const a=document.createElement('a');a.href=url;a.download=state.county.replaceAll(' ','_')+'_historical_storm_comparison.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);document.getElementById('download-status').textContent='Exported all-zone county comparison for all four storms.';});
  document.getElementById('print-button')?.addEventListener('click',()=>window.print());
- document.getElementById('est-storm')?.addEventListener('change',e=>{est.storm=e.target.value;render()});
- document.getElementById('est-county')?.addEventListener('change',e=>{est.county=e.target.value;render()});
- document.getElementById('est-zone')?.addEventListener('change',e=>{est.zone=e.target.value;render()});
- // typed values outside the trained range snap to the nearest limit
- document.getElementById('est-depth')?.addEventListener('change',e=>{const v=parseFloat(e.target.value);if(!isNaN(v))est.depth=Math.round(clamp(v,0,30)*10)/10;render()});
- document.getElementById('est-coverage')?.addEventListener('change',e=>{const v=parseFloat(e.target.value);if(!isNaN(v))est.coverage=Math.round(clamp(v,10000,250000));render()});
+ document.getElementById('est-storm')?.addEventListener('change',e=>{est.storm=e.target.value;updateEstimate()});
+ document.getElementById('est-county')?.addEventListener('change',e=>{est.county=e.target.value;updateEstimate()});
+ document.getElementById('est-zone')?.addEventListener('change',e=>{est.zone=e.target.value;updateEstimate()});
+ const ft=v=>v+' ft',bindNumber=(id,lo,hi,label,unit,set)=>{const input=document.getElementById(id);if(!input)return;const msg=document.getElementById(id+'-msg');
+  input.addEventListener('input',()=>{const r=readNumber(input,lo,hi,label,unit);msg.textContent=r.message;if(r.value!=null){set(r.value);updateEstimate()}});
+  // when the box loses focus, show the value actually used
+  input.addEventListener('change',()=>{const r=readNumber(input,lo,hi,label,unit),kept=id==='est-depth'?est.depth:est.coverage;
+   if(r.value==null)msg.textContent=`Kept ${unit(kept)}. Enter a number from ${unit(lo)} to ${unit(hi)} to change it.`;
+   input.value=kept;});};
+ if(state.page==='predict'){
+  bindNumber('est-depth',0,P.depths.at(-1),'water depth',ft,v=>{est.depth=Math.round(v*10)/10});
+  bindNumber('est-coverage',P.coverages[0],P.coverages.at(-1),'coverage amount',money,v=>{est.coverage=Math.round(v)});
+ }
 }
 document.querySelectorAll('.nav').forEach(b=>b.addEventListener('click',()=>setPage(b.dataset.page)));
 document.querySelector('.brand').addEventListener('click',e=>{e.preventDefault();setPage('explore')});

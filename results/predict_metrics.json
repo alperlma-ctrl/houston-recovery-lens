@@ -1,28 +1,28 @@
 {
-  "eligible_n": 54919,
+  "eligible_n": 54000,
   "mixed_test": {
-    "train_n": 43935,
-    "test_n": 10984,
-    "baseline_mae": 54758.189548434086,
-    "model_mae": 44377.86055785621,
-    "improvement_pct": 18.956669451966423,
-    "r2": 0.32432916959881497,
-    "zero_share": 0.00027312454479242533
+    "train_n": 43200,
+    "test_n": 10800,
+    "baseline_mae": 56263.44907407407,
+    "model_mae": 45439.5646554759,
+    "improvement_pct": 19.23786151884842,
+    "r2": 0.3212275545500568,
+    "zero_share": 0.0
   },
   "unseen_storm_test": {
-    "train_n": 53805,
-    "test_n": 1114,
-    "baseline_mae": 47968.15619389587,
-    "model_mae": 20631.461943539085,
-    "improvement_pct": 56.98925374545767,
-    "r2": -0.28410963069197015,
-    "zero_share": 0.05565529622980251
+    "train_n": 52898,
+    "test_n": 1102,
+    "baseline_mae": 47622.67876588022,
+    "model_mae": 21700.35540697406,
+    "improvement_pct": 54.43272833589212,
+    "r2": -0.36769152677518635,
+    "zero_share": 0.0
   },
   "importance": {
-    "Water depth": 0.31509649753570557,
-    "County": 0.18602584302425385,
-    "Home coverage": 0.1857951432466507,
-    "Storm rain & wind": 0.1690995842218399,
-    "Flood zone": 0.14398294687271118
+    "Water depth": 0.5366381406784058,
+    "Home coverage": 0.2125953882932663,
+    "County": 0.09593288600444794,
+    "Storm rain & wind": 0.0952976793050766,
+    "Flood zone": 0.05953579396009445
   }
 }
