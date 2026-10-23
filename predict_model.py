@@ -85,8 +85,7 @@ def main():
                'Storm rain & wind': importance['rain_total'] + importance['gust_max'],
                'Flood zone': importance.filter(like='zone_').sum(), 'County': importance.filter(like='county_').sum()}
 
-    # estimator grid used by the demo's "estimate a home" tool
-    # the demo fills in values between these points
+    # grid for the demo's estimator, which blends values between these points
     depths = [0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 30]
     coverages = [10000, 25000, 50000, 75000, 100000, 150000, 200000, 250000]
     rows = []
