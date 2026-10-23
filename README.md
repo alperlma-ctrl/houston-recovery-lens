@@ -17,7 +17,7 @@ Open **OPEN_DEMO.html** here, choose **Download raw file**, and open the downloa
 3. **Recovery atlas:** compare observed building damage among eligible flood insurance claim records across four storms and five counties.
 4. **Capacity plan:** edit assumed appointment requests, set available slots, review the allocation, and export the assumptions and plan together.
 5. **Evidence:** inspect model selection, every evaluation window, the severe-peak weakness, and the earlier rejected financial model.
-6. **Pitch guide:** follow the two-minute walkthrough and practice the answers.
+The presenter guide is external: open **PRESENTATION_GUIDE.html** for the two-minute route, detailed click-by-click instructions, reset steps, verified results, and judge answers. It is not a tab in the app.
 
 The standalone HTML embeds all demo assets and data, including typography fallbacks. The multi-file demo may use an internet font when available. The GitHub repository stores the project privately; it is not a hosted app URL.
 
@@ -72,7 +72,7 @@ An optional historical claim mix scales a storm's eligible claim shares into 200
 - `train_wind_model.py`: causal six-hour samples, whole-storm selection, frozen-model checks, and replay outputs.
 - `fetch_external_weather.py`: reproducible additional ERA5 requests derived from the supplied 2026 tracks.
 - `make_evidence_figure.py`: renders the comparison figure from saved metrics.
-- `PRESENTATION_GUIDE.md`: two-minute pitch, click sequence, and judge questions.
+- `PRESENTATION_GUIDE.html` and `PRESENTATION_GUIDE.md`: external presenter playbook with exact actions, spoken lines, resets, and judge questions.
 - `JUDGES_BRIEF.md`: concise problem, method, measured results, and limits.
 - `data_dictionary.md`: fields, joins, derived features, and scenario definitions.
 - `data/`: original organizer extracts and a separate `external_validation/` folder.
@@ -104,7 +104,7 @@ The Decision Room includes an animated score gauge, county-fill transitions, sta
 
 The **Predict damage** tab estimates a flooded home’s building damage with XGBoost from water depth, coverage, flood zone, county, and storm weather, and ranks zip codes by predicted damage if Harvey hit again. `predict_model.py` reproduces the experiment and saves the fitted model, evaluation metrics and interpolation grid. `build_demo.py` rebuilds the standalone HTML from `demo/`. Install the pinned requirements and run `python predict_model.py`, then `python build_demo.py` from the complete extracted project.
 
-The integrated rerun retained **54,000 claim records**. Random-record holdout MAE was **$45,440** versus **$56,263** for its training-median baseline (19.2% lower). Beryl excluded from fitting had MAE **$21,703**, versus **$47,623** for the older-storm median and **$24,986** for always zero; R² was **−0.374**. Results differ slightly across execution environments. These are development checks; Beryl was already inspected during project development, and random claim records are not verified distinct homes. The final interactive grid is refitted on all 54,000 records.
+The ten-storm rerun retained **54,697 claim records**. Random-record holdout MAE was **$45,167** versus **$55,733** for its training-median baseline (19.0% lower). Beryl excluded from fitting had MAE **$21,108**, versus **$47,229** for the other-storm median and **$24,986** for always zero; R² was **−0.305**. Results differ slightly across execution environments. Beryl was already inspected during project development, and random claim records are not verified distinct homes. The final interactive grid is refitted on all 54,697 records.
 
 The claim field does not state its depth unit, so the model keeps recorded depths of 0–10, where most values look like feet. The model uses each storm’s recorded weather and depth, so it estimates damage once a storm has hit rather than forecasting before landfall. Zip totals cover homes in the claim records, not every home.
 
