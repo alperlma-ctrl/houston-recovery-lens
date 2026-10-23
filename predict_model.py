@@ -9,7 +9,7 @@ import json
 import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_absolute_error, r2_score
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import KFold, train_test_split
 from xgboost import XGBRegressor
 
 ROOT = Path(__file__).resolve().parent
@@ -22,7 +22,9 @@ EXTRA_STORMS = {'Texas Spring Flooding': 'Spring 2024', 'Tropical Storm Beta': '
                 'June TS Alberto': 'Alberto', 'Fall 2018 Texas Flooding': 'Fall 2018', 'Hurricane Laura': 'Laura'}
 EXTRA_WEATHER = {'Spring_Flooding_2024': 'Spring 2024', 'Tropical_Storm_Beta_2020': 'Beta', 'Tropical_Storm_Arthur_2026': 'Arthur',
                  'Tropical_Storm_Alberto_2024': 'Alberto', 'Fall_Flooding_2018': 'Fall 2018', 'Hurricane_Laura_2020': 'Laura'}
-FEATURES = ['depth', 'log_coverage', 'rain_total', 'gust_max', 'zone', 'county']
+FEATURES = ['depth', 'log_coverage', 'rain_total', 'gust_max', 'lat', 'lon', 'zone', 'county']
+# zips with this many claim records get their own choice in the demo; the rest use their county
+DEMO_ZIP_MIN = 200
 
 
 def load():
@@ -50,12 +52,34 @@ def load():
     # The organizer labels the field inches/feet; physical units remain unresolved.
     df = df[df.depth.notna() & df.depth.between(0, 10)]
     df['log_coverage'] = np.log1p(df.coverage)
+    df['lat'] = pd.to_numeric(df.latitude, errors='coerce')
+    df['lon'] = pd.to_numeric(df.longitude, errors='coerce')
+    df['zip'] = df.reportedZipCode.astype(str)
     df = df.merge(summary, on=['storm', 'county'], how='inner', validate='many_to_one')
-    return df, summary
+    return df.reset_index(drop=True), summary
+
+
+def zip_history(train):
+    # average damage per zip in the training storms, pulled toward the overall average when a zip has few claims
+    prior, k = train.damage.mean(), 30
+    g = train.groupby('zip').damage.agg(['sum', 'count'])
+    return (g['sum'] + prior * k) / (g['count'] + k), prior
+
+
+def add_zip_history(train, test):
+    # training rows get out-of-fold values so the model can't just memorize its own claims
+    train, test = train.copy(), test.copy()
+    train['zip_mean'] = 0.0
+    for a, b in KFold(5, shuffle=True, random_state=0).split(train):
+        hist, prior = zip_history(train.iloc[a])
+        train.iloc[b, train.columns.get_loc('zip_mean')] = train.zip.iloc[b].map(hist).fillna(prior).values
+    hist, prior = zip_history(train)
+    test['zip_mean'] = test.zip.map(hist).fillna(prior)
+    return train, test
 
 
 def features(frame):
-    X = pd.get_dummies(frame[FEATURES], columns=['zone', 'county']).astype(float)
+    X = pd.get_dummies(frame[FEATURES + ['zip_mean']], columns=['zone', 'county']).astype(float)
     for col in ['zone_AE', 'zone_OTHER', 'zone_X'] + ['county_' + c for c in COUNTIES.values()]:
         if col not in X:
             X[col] = 0.0
@@ -63,24 +87,33 @@ def features(frame):
 
 
 def new_model():
-    # more water or more coverage should never lower the estimate
-    # tweedie keeps predictions above $0, which squared error did not on Beryl
+    # predicts the share of coverage that was damaged (0 to 1); more water should never lower it
+    # this beat predicting dollars in experiments.py, mostly by fixing the low totals on unseen storms
     return XGBRegressor(n_estimators=400, max_depth=5, learning_rate=0.05, subsample=0.8, colsample_bytree=0.8,
-                        objective='reg:tweedie', tweedie_variance_power=1.5,
-                        monotone_constraints={'depth': 1, 'log_coverage': 1}, random_state=42, n_jobs=2)
+                        objective='reg:logistic', monotone_constraints={'depth': 1}, random_state=42, n_jobs=2)
+
+
+def fit(train):
+    model = new_model()
+    model.fit(features(train), (train.damage / train.coverage).clip(0, 1))
+    return model
+
+
+def predict_dollars(model, frame):
+    return model.predict(features(frame)).clip(0) * frame.coverage.values
 
 
 def test_result(train, test):
-    model = new_model()
-    model.fit(features(train), train.damage)
-    pred = model.predict(features(test)).clip(0)
+    train, test = add_zip_history(train, test)
+    pred = predict_dollars(fit(train), test)
     baseline = np.full(len(test), train.damage.median())
     base_mae = mean_absolute_error(test.damage, baseline)
     model_mae = mean_absolute_error(test.damage, pred)
     return {'train_n': len(train), 'test_n': len(test), 'baseline_mae': base_mae, 'model_mae': model_mae,
             'improvement_pct': 100 * (1 - model_mae / base_mae), 'r2': r2_score(test.damage, pred),
             'zero_share': float(np.mean(pred == 0)), 'zero_baseline_mae': float(np.mean(np.abs(test.damage))),
-            'test_mean_damage': float(test.damage.mean()), 'mean_prediction': float(pred.mean())}
+            'test_mean_damage': float(test.damage.mean()), 'mean_prediction': float(pred.mean()),
+            'total_error_pct': 100 * (pred.sum() / test.damage.sum() - 1)}
 
 
 def storm_tests(df):
@@ -89,7 +122,8 @@ def storm_tests(df):
     for storm in df.storm.value_counts().index:
         r = test_result(df[df.storm != storm], df[df.storm == storm])
         rows.append({'storm': storm, 'test_n': r['test_n'], 'model_mae': r['model_mae'], 'baseline_mae': r['baseline_mae'],
-                     'zero_baseline_mae': r['zero_baseline_mae'], 'improvement_pct': r['improvement_pct']})
+                     'zero_baseline_mae': r['zero_baseline_mae'], 'improvement_pct': r['improvement_pct'],
+                     'r2': r['r2'], 'total_error_pct': r['total_error_pct']})
     return rows
 
 
@@ -111,29 +145,48 @@ def main():
                      'improvement_pct_excl_harvey': weighted(others),
                      'four_storm_improvement_pct_excl_harvey': weighted(four_storm)}
 
-    model = new_model()
-    model.fit(features(df), df.damage)
+    trained, _ = add_zip_history(df, df.head(1))
+    model = fit(trained)
+    hist, _ = zip_history(df)
+    df['zip_mean'] = df.zip.map(hist)
     importance = pd.Series(model.feature_importances_, index=features(df.head(1)).columns)
     grouped = {'Water depth': importance['depth'], 'Home coverage': importance['log_coverage'],
                'Storm rain & wind': importance['rain_total'] + importance['gust_max'],
+               'Location & zip history': importance['lat'] + importance['lon'] + importance['zip_mean'],
                'Flood zone': importance.filter(like='zone_').sum(), 'County': importance.filter(like='county_').sum()}
+
+    # demo places: each busy zip, plus a typical home for each county
+    counts = df.groupby('zip').size()
+    places = []
+    for z in sorted(counts[counts >= DEMO_ZIP_MIN].index):
+        rows = df[df.zip == z]
+        places.append({'place': z, 'county': rows.county.mode()[0], 'lat': rows.lat.median(), 'lon': rows.lon.median(), 'zip_mean': hist[z]})
+    for county, rows in df.groupby('county'):
+        places.append({'place': '', 'county': county, 'lat': rows.lat.median(), 'lon': rows.lon.median(), 'zip_mean': rows.damage.mean()})
 
     # grid for the demo's estimator, which blends between whole feet since claims only record whole feet
     depths = list(range(0, 11))
     coverages = [25000, 50000, 75000, 100000, 150000, 200000, 250000]
     rows = []
     for w in summary[summary.storm.isin(STORMS.values())].to_dict('records'):
-        for zone in ['X', 'AE', 'OTHER']:
-            for depth in depths:
-                for coverage in coverages:
-                    rows.append({**w, 'zone': zone, 'depth': depth, 'coverage': coverage, 'log_coverage': np.log1p(coverage)})
+        for place in places:
+            if place['county'] != w['county']:
+                continue
+            for zone in ['X', 'AE', 'OTHER']:
+                for depth in depths:
+                    for coverage in coverages:
+                        rows.append({**w, **place, 'zone': zone, 'depth': depth, 'coverage': coverage, 'log_coverage': np.log1p(coverage)})
     grid = pd.DataFrame(rows)
-    grid['prediction'] = model.predict(features(grid)).clip(0)
+    grid['prediction'] = predict_dollars(model, grid)
+    # one list of predictions per storm/place/zone, ordered depth first, then coverage
+    grid_values = {}
+    for (storm, place, county, zone), g in grid.groupby(['storm', 'place', 'county', 'zone'], sort=False):
+        grid_values['|'.join([storm, place or county, zone])] = [int(round(v)) for v in g.prediction]
 
     # scenario: every eligible home gets Harvey's weather for its county
     scenario = df.drop(columns=['rain_total', 'gust_max']).merge(
         summary[summary.storm == 'Harvey'].drop(columns='storm'), on='county')
-    scenario['prediction'] = model.predict(features(scenario)).clip(0)
+    scenario['prediction'] = predict_dollars(model, scenario)
     zips = scenario.groupby('reportedZipCode').agg(
         county=('county', lambda s: s.mode()[0]), homes=('prediction', 'size'),
         average=('prediction', 'mean'), total=('prediction', 'sum')).reset_index()
@@ -148,7 +201,8 @@ def main():
         'cohort_counts': df.groupby(['storm','county','zone']).size().rename('claims').reset_index().to_dict('records'),
         'importance': {k: float(v) for k, v in sorted(grouped.items(), key=lambda kv: -kv[1])},
         'depths': depths, 'coverages': coverages,
-        'grid': [[r.storm, r.county, r.zone, r.depth, r.coverage, round(float(r.prediction))] for r in grid.itertuples()],
+        'grid': grid_values,
+        'demo_zips': [{'zip': p['place'], 'county': p['county'], 'records': int(counts[p['place']])} for p in places if p['place']],
         'zips': [{'zip': r.reportedZipCode, 'county': r.county, 'records': int(r.homes), 'average': float(r.average), 'total': float(r.total)}
                  for r in zips.head(10).itertuples()],
         'counties': [{'county': r.county, 'records': int(r.homes), 'average': float(r.average), 'total': float(r.total)}

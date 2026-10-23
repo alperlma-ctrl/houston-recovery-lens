@@ -46,9 +46,11 @@ Use this route when time is limited. Do not try to show every feature. If runnin
 
 ### 1:20–1:45 · Show the separate damage experiment
 
-**PRESS:** Click **Predict damage**. Keep **Hurricane Harvey (2017)**, **Harris**, **Zone X**, and coverage **250000**. Scroll to **Recorded depth code (0–10)**. Replace its value with **1**, then **4**.
+**PRESS:** Click **Predict damage**. Keep **Hurricane Harvey (2017)**, **Harris**, **Zone X**, and coverage **250000**. Scroll to **Recorded depth code (0–10)**. Replace its value with **1**, then **4**. Then pick zip **77079** in **Zip code**.
 
 **SAY:** “The damage experiment lets us vary recorded depth and coverage under historical storm conditions. We label depth as a code because the source leaves inches versus feet unresolved. This is a retrospective research experiment, not an advance damage forecast.”
+
+**SAY (stronger option):** “Location matters too: the same home in zip 77079 is estimated at about twice a typical Harris home, because that zip was hit harder in past storms. Added up, the model got Beryl’s total damage within about 17% without ever seeing Beryl.”
 
 ### 1:45–2:00 · Close with the value and next step
 
@@ -214,12 +216,59 @@ If asked about the first damage model, open **Inspect the original financial mod
 | Wind, Beryl replay | MAE 5.61 vs persistence 6.50 mph | About 13.8% lower error; development replay |
 | Wind, three extra 2026 windows | MAE 3.53 vs persistence 3.68 mph | About 3.9% lower error; correlated observations |
 | Wind, Beryl highest-gust tenth | MAE about 18.9 mph | Severe peaks remain difficult and tend to be underestimated |
-| Damage, random 20% record check | MAE $45,167 vs median $55,733; R² 0.322 | About 19.0% lower MAE; records are not identified distinct homes |
-| Damage, each of 10 storms held out | Beats the training median on 9 of 10 | 34% lower MAE outside Harvey, up from 25% with the original 4 storms |
-| Damage, Beryl excluded from fitting | MAE $21,108 vs other-storm median $47,229 and zero $24,986; R² −0.305 | About 55.3% lower MAE versus that median; substantial weaknesses remain |
-| Damage, Beryl mean | Estimate about $14,260 vs recorded about $24,986 | Do not claim it gets the overall level right |
+| Damage, random 20% record check | MAE $39,598 vs median $55,733; R² 0.443 | About 29.0% lower MAE (first version 19.0%, R² 0.322); records are not identified distinct homes |
+| Damage, each of 10 storms held out | Beats the training median on 9 of 10 | 36% lower MAE outside Harvey |
+| Damage, Beryl excluded from fitting | MAE $19,382 vs other-storm median $47,229 and zero $24,986; R² −0.018 | About 59.0% lower MAE versus that median (first version 55.3%, R² −0.305) |
+| Damage, Beryl mean | Estimate about $20,651 vs recorded about $24,986 | Total about 17% low (first version: $14,260, 42% low) |
 
 **MAE** is average absolute error: the average size of the miss, in mph or dollars. A reduction in MAE is not “percent accurate.” **R²** uses squared error; negative Beryl R² means the model did worse than the Beryl test-set mean under that metric.
+
+## 4b. Damage model accuracy, explained
+
+**One-line pitch:** “Per home it’s a rough estimate, but added up it got Beryl’s total damage within about 17% without ever seeing Beryl. The old version was 42% low.”
+
+**Longer version:** “Our first XGBoost version used depth, coverage, flood zone, county and storm weather. We tested 24 versions in `model_experiments.py`. The winner predicts the share of coverage that was damaged instead of raw dollars, and adds map location and each zip code’s average damage in other storms. On homes it never saw, its error is 29% below the baseline, up from 19%, and R² rose from 0.32 to 0.44.”
+
+**What the numbers mean (random 20% of homes held out):**
+
+| Approach | Typical miss per home |
+| --- | --- |
+| Guess the training median for every home (baseline) | about $55,700 |
+| First XGBoost version | about $45,200 (19% smaller) |
+| Current version | about $39,600 (29% smaller) |
+
+- This is not “29% accurate.” It means the average miss is 29% smaller than the simple baseline’s.
+- **R² 0.44** means the model explains about 44% of why one home’s damage differs from another’s. The rest comes from things not in the data: elevation, building materials, how long water stayed.
+- **For one house:** a miss of about $40k is rough; never use it to decide one family’s payout.
+- **For where to send help:** errors on single homes mostly cancel when added up by zip or county. Beryl’s predicted total was within about 17% of the real total.
+- **For a hackathon:** FEMA damage data is very noisy. R² around 0.4–0.5 from depth, coverage, location and weather is respectable, and the storm holdouts show it isn’t just memorizing.
+
+**What we tried (all in `model_experiments.py`):**
+
+| Change | Random homes | Unseen storms (excl. Harvey) | Result |
+| --- | --- | --- | --- |
+| First version | 19% | 32% | Starting point |
+| Tuning (tree depth, learning rate, loss settings) | about 19% | 31–35% | No real gain; ±2 points is noise |
+| Predict damage as a share of coverage | 19% | 34% | Fixes low totals on new storms |
+| + map location | 26% | 37% | Big gain |
+| + zip history (average damage in that zip in other storms) | 28% | 38% | Biggest single gain |
+| Remove storm weather | 17% | 14% | Much worse, so weather really matters |
+| **Final: share of coverage + location + zip history** | **29%** | **36–37%** | Best balance of home-level error and totals |
+
+**Before and after:**
+
+| Test | First version | Current version |
+| --- | --- | --- |
+| Random 20% of homes | 19% less error, R² 0.32 | 29% less error, R² 0.44 |
+| Beryl held out | 55% less error, R² −0.30 | 59% less error, R² −0.02 |
+| Beryl average per home | $14,260 predicted vs $24,986 | $20,651 predicted vs $24,986 |
+| Each storm held out (excl. Harvey) | 34% less error | 36% less error, beats baseline on 9 of 10 |
+
+**Is zip history cheating?** No. In every test it is computed only from the storms the model trained on, so it’s what a team would already know about a zip before the next storm. Training rows use out-of-fold values so the model can’t memorize its own claims.
+
+**Weak spots to admit if asked:** Harvey held out still doesn’t beat the baseline (it is 91% of all claims, so there is nothing comparable left to learn from). Laura and Nicholas totals swing a lot because they have only 20 and 140 claims.
+
+**Demo:** the estimator now has a **Zip code** picker. The 77 zips with at least 200 past claims each get their own estimate; “Typical home in county” covers the rest. Try Harvey, Harris, Zone X, 3 ft, $250,000: a typical Harris home is about $110k, while zip 77079 is about $215k.
 
 ## 5. Prepared answers to likely judge questions
 
@@ -261,7 +310,7 @@ If asked about the first damage model, open **Inspect the original financial mod
 
 **What failed?**
 
-“The first financial model collapsed to zero on Beryl and was rejected. Severe wind peaks remain hard, and the added damage experiment still has negative Beryl R². We show these failures so the interface does not imply unsupported confidence.”
+“The first financial model collapsed to zero on Beryl and was rejected. Severe wind peaks remain hard, and the added damage experiment’s Beryl R² is still slightly negative (−0.02, up from −0.30). We show these failures so the interface does not imply unsupported confidence.”
 
 **What data did you use?**
 
