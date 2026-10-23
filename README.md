@@ -1,10 +1,10 @@
-# Houston Recovery Lens
+# Hurricane Recovery Model (HRM)
 
 Built by **Siddharth Korampalli and Andrew Perlman**.
 
 A Track 1 hurricane preparedness and recovery research demo for the Code[Coogs] AI Hackathon on October 23, 2026.
 
-Recovery Lens opens with a Decision Room: allocate a fixed appointment budget, stress-test the county mix across historical storms, compare simple strategies, and export a decision receipt. A six-hour wind replay, historical recovery atlas, and assumed-request capacity planner support the decision workflow. It works offline in a single browser file and includes reproducible analysis and visible limitations.
+HRM opens with a Decision Room: allocate a fixed appointment budget, stress-test the county mix across historical storms, compare simple strategies, and export a decision receipt. A six-hour wind replay, historical recovery atlas, and assumed-request capacity planner support the decision workflow. It works offline in a single browser file and includes reproducible analysis and visible limitations.
 
 ![Decision Room preview](Recovery_Lens_Preview.png)
 
@@ -102,12 +102,22 @@ The Decision Room includes an animated score gauge, county-fill transitions, sta
 
 ## Water-depth damage model
 
-The **Predict damage** tab estimates a flooded home’s building damage with XGBoost from water depth, coverage, flood zone, county, map location, the zip code’s average damage in other storms, and storm weather, and ranks zip codes by predicted damage if Harvey hit again. `predict_model.py` reproduces the experiment and saves the fitted model, evaluation metrics and interpolation grid. `build_demo.py` rebuilds the standalone HTML from `demo/`. Install the pinned requirements and run `python predict_model.py`, then `python build_demo.py` from the complete extracted project.
+The **Predict damage** tab estimates a flooded home’s building damage with XGBoost from water depth, coverage, flood zone, county, map location, the zip code’s average damage in other storms, and storm weather, and replays Harvey weather on retained records by ZIP code. `predict_model.py` reproduces the experiment and saves the fitted model, evaluation metrics and interpolation grid. `build_demo.py` rebuilds the standalone HTML from `demo/`. Install the pinned requirements and run `python predict_model.py`, then `python build_demo.py` from the complete extracted project.
 
 The model predicts the share of coverage that was damaged (0 to 1) and multiplies by coverage. The ten-storm rerun retained **54,697 claim records**. Random-record holdout MAE was **$39,598** versus **$55,733** for its training-median baseline (29.0% lower, R² **0.443**). Beryl excluded from fitting had MAE **$19,382**, versus **$47,229** for the other-storm median and **$24,986** for always zero; R² was **−0.018**, and the predicted Beryl total was about 17% below the recorded total. Results differ slightly across execution environments. Beryl was already inspected during project development, and random claim records are not verified distinct homes. The final interactive grid is refitted on all 54,697 records.
 
-The claim field does not state its depth unit, so the model keeps recorded depths of 0–10, where most values look like feet. The model uses each storm’s recorded weather and depth, so it estimates damage once a storm has hit rather than forecasting before landfall. Zip totals cover homes in the claim records, not every home.
+The claim field does not state its depth unit, so the model keeps recorded depths of 0–10, without assigning a physical unit. The model uses each storm’s recorded weather and depth, so it estimates damage once a storm has hit rather than forecasting before landfall. Zip totals cover homes in the claim records, not every home.
 
 **Ten storms.** Besides the four organizer storms, the claims file has six smaller flood events with no weather: Spring 2024 flooding, Beta, Arthur, Alberto, Fall 2018 flooding, and Laura. `fetch_damage_weather.py` downloads Open-Meteo ERA5 weather for each one (four days before to two days after its busiest claim date) into `data/external_damage/`. Holding out each of the ten storms in turn, the model beats the training-median baseline on 9 of 10, with 36% less error outside Harvey. Harvey holds 91% of the claims, so the model trains with it in every other test. The estimator suppresses county/storm/zone cohorts with fewer than 50 retained depth-coded records. Numeric inputs clamp to the exported grid, show the value used, and retain the last valid estimate for blank input. Interpolated values blend four neighboring grid predictions.
 
-**Model experiments.** `model_experiments.py` compares 24 versions on the same tests (random 20% holdout, Beryl held out, and each storm held out). Tuning tree depth, learning rate and loss settings changed results by about ±2 points, which is noise. The gains came from predicting the share of coverage damaged, which brought unseen-storm totals much closer, and from map location and zip history, which raised the random-holdout improvement from 19% to 29% and R² from 0.32 to 0.44. Removing storm weather cut the unseen-storm improvement from 32% to 14%. Zip history is computed only from training storms in every test, with out-of-fold values for training rows. In the demo, the 77 zips with at least 200 claim records each have their own estimate; other homes use a typical home in their county.
+**Model experiments.** `model_experiments.py` compares 24 versions on the same tests (random 20% holdout, Beryl held out, and each storm held out). Tuning tree depth, learning rate and loss settings changed results by about ±2 points, without evidence establishing statistical significance. The gains came from predicting the share of coverage damaged, which brought unseen-storm totals much closer, and from map location and zip history, which raised the random-holdout improvement from 19% to 29% and R² from 0.32 to 0.44. Removing storm weather cut the unseen-storm improvement from 32% to 14%. Zip history is computed only from training storms in every test, with out-of-fold values for training rows. In the demo, the 77 zips with at least 200 claim records each have their own estimate; other selections use county reference inputs.
+
+
+## Review notes for the expanded damage experiment
+
+The pooled record-weighted MAE improvement across all ten event holdouts is 0.7%; 36.4% excludes Harvey. Harvey fails to beat the training-median baseline, and always zero beats the model on Nicholas and Laura. Beryl and all event checks were repeatedly inspected while choosing among 24 variants. They are development results, not untouched tests. Leave-event-out fitting can include later events; ZIP encodings are fitted on training records but random folds can include the same event and repeat properties. Full-fit demo ZIP histories include the selected event.
+
+Damage-to-coverage targets are clipped to 0–1 even though assessed damage can exceed coverage. Added ERA5 windows are centered on loss dates and differ in length from organizer windows; event attribution is inherited, not independently verified. No claim of operational forecasting, cancellation of geographic errors, or aid-priority validation is supported.
+
+Live app: https://hurricane-recovery-model-hrm.vercel.app/
+Presenter playbook: https://hrm-presenter-playbook.vercel.app/

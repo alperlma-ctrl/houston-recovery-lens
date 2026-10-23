@@ -8,3 +8,10 @@ const result=vm.runInContext(`(()=>{let points=0,groups=0;for(const storm of Obj
 const places=5+ctx.window.PREDICT_DATA.demo_zips.length;
 assert.equal(result.groups,60);assert.equal(result.points,36*places);
 console.log(`PASS: 60 storm/county/zone groups, ${places} places, ${result.points} interpolation points, sparse cohorts, blank input and bounds.`);
+
+
+// Catch presentation regressions that previously overstated evaluation and depth units.
+assert(!/ft of water|before the claims arrive|LESS ERROR ON HOMES IT NEVER SAW|where most values look like feet/.test(fs.readFileSync(path.join(root,"demo/predict-ui.js"),"utf8")));
+const score=vm.runInContext("allEventGain()",ctx);assert(score>0&&score<1);
+assert(vm.runInContext("damageEvidence().includes('Always-zero MAE') && damageEvidence().includes('chronological')",ctx));
+console.log("PASS: complete-event score, evidence baselines, and honest depth/evaluation labels.");

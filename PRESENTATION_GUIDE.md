@@ -1,4 +1,4 @@
-# Recovery Lens · Presenter’s playbook
+# HRM · Presenter’s playbook
 
 Siddharth Korampalli and Andrew Perlman · Track 1 · Hurricane preparedness and recovery
 
@@ -24,7 +24,7 @@ Use this route when time is limited. Do not try to show every feature. If runnin
 
 **PRESS:** Start on **Decision Room**, budget **100**, all four scenarios checked. Point to the county map.
 
-**SAY:** “We’re Siddharth and Andrew. Recovery Lens asks a practical question: can your recovery plan survive a different storm? Imagine a small recovery desk with 100 appointments. Historical storm footprints differ, so dividing those appointments equally is a choice we should test.”
+**SAY:** “We’re Siddharth and Andrew. HRM asks a practical question: can your recovery plan survive a different storm? Imagine a small recovery desk with 100 appointments. Historical storm footprints differ, so dividing those appointments equally is a choice we should test.”
 
 ### 0:20–0:40 · Compare a simple plan with the alternative
 
@@ -50,13 +50,13 @@ Use this route when time is limited. Do not try to show every feature. If runnin
 
 **SAY:** “The damage experiment lets us vary recorded depth and coverage under historical storm conditions. We label depth as a code because the source leaves inches versus feet unresolved. This is a retrospective research experiment, not an advance damage forecast.”
 
-**SAY (stronger option):** “Location matters too: the same home in zip 77079 is estimated at about twice a typical Harris home, because that zip was hit harder in past storms. Added up, the model got Beryl’s total damage within about 17% without ever seeing Beryl.”
+**SAY (stronger option):** “Location matters too: the same recorded inputs give a different estimate for ZIP 77079 than for the Harris county reference, reflecting the fitted location and ZIP-history features. Added up, the model got Beryl’s total damage within about 17% with Beryl excluded from fitting; this test was inspected during development.”
 
 ### 1:45–2:00 · Close with the value and next step
 
 **PRESS:** Click **Decision Room** to finish on the main screen. Do not refresh unless you want to reset the plan.
 
-**SAY:** “Recovery Lens connects model evidence to a decision you can question, change, and document. Next we need verified recovery requests, resolved depth units, travel and urgency constraints, and issue-time forecast data before operational use.”
+**SAY:** “HRM connects model evidence to a decision you can question, change, and document. Next we need verified recovery requests, resolved depth units, travel and urgency constraints, and issue-time forecast data before operational use.”
 
 ## 3. Detailed click-by-click rehearsal
 
@@ -138,7 +138,7 @@ Use the browser’s Print command inside the receipt to save it as a PDF if need
 
 **PRESS:** Click **Predict damage**. Select **Hurricane Harvey (2017)**, **Harris**, **Zone X**. Enter coverage **250000**. Enter depth code **1**, then **4**.
 
-**EXPECT:** Approximately **$80,863** at code 1 and **$201,990** at code 4 in the current integrated model. If a future rebuild changes these values, read the actual screen rather than quoting old dollar figures.
+**EXPECT:** Approximately **$70,745** at code 1 and **$121,698** at code 4 in the current integrated model. If a future rebuild changes these values, read the actual screen rather than quoting old dollar figures.
 
 **SAY:** “This shows how the fitted model responds to the recorded-depth scenario. Coverage is an insurance limit rather than a property-value measurement. The outcome is assessed building damage, not an insurance payout. The original depth units still need to be resolved.”
 
@@ -223,32 +223,36 @@ If asked about the first damage model, open **Inspect the original financial mod
 
 **MAE** is average absolute error: the average size of the miss, in mph or dollars. A reduction in MAE is not “percent accurate.” **R²** uses squared error; negative Beryl R² means the model did worse than the Beryl test-set mean under that metric.
 
-## 4b. Damage model accuracy, explained
+## 4b. Damage model results, explained
 
-**One-line pitch:** “Per home it’s a rough estimate, but added up it got Beryl’s total damage within about 17% without ever seeing Beryl. The old version was 42% low.”
+Across all ten leave-event-out checks, pooled record-weighted MAE improves by only **0.7%**. The **36.4%** figure excludes Harvey. Always zero beats the model on Nicholas and Laura. All these checks were used during development and model comparison; none is an untouched final test. Added events are dataset labels, not independently verified storm attribution.
 
-**Longer version:** “Our first XGBoost version used depth, coverage, flood zone, county and storm weather. We tested 24 versions in `model_experiments.py`. The winner predicts the share of coverage that was damaged instead of raw dollars, and adds map location and each zip code’s average damage in other storms. On homes it never saw, its error is 29% below the baseline, up from 19%, and R² rose from 0.32 to 0.44.”
+The model clips damage-to-coverage training ratios to 0–1, limiting its ability to represent assessed damage above insurance coverage. The demo uses county reference inputs, not a verified typical home. Depth remains a raw code with unresolved physical units.
 
-**What the numbers mean (random 20% of homes held out):**
+**One-line pitch:** “Per home it’s a rough estimate, but added up it got Beryl’s total damage within about 17% with Beryl excluded from fitting; this test was inspected during development. The previously integrated four-event version was about 42% low.”
 
-| Approach | Typical miss per home |
+**Longer version:** “Our first XGBoost version used depth, coverage, flood zone, county and storm weather. We tested 24 versions in `model_experiments.py`. The winner predicts the share of coverage that was damaged instead of raw dollars, and adds map location and ZIP damage history from fitting records. On held-out claim records, its error is 29% below the baseline, up from 19%, and R² rose from 0.32 to 0.44.”
+
+**What the numbers mean (random 20% of claim records held out):**
+
+| Approach | Average miss per record |
 | --- | --- |
 | Guess the training median for every home (baseline) | about $55,700 |
 | First XGBoost version | about $45,200 (19% smaller) |
 | Current version | about $39,600 (29% smaller) |
 
 - This is not “29% accurate.” It means the average miss is 29% smaller than the simple baseline’s.
-- **R² 0.44** means the model explains about 44% of why one home’s damage differs from another’s. The rest comes from things not in the data: elevation, building materials, how long water stayed.
+- **R² 0.44** describes performance on this random-record sample relative to its test-set mean under squared error. It does not establish causes or accuracy on new properties.
 - **For one house:** a miss of about $40k is rough; never use it to decide one family’s payout.
-- **For where to send help:** errors on single homes mostly cancel when added up by zip or county. Beryl’s predicted total was within about 17% of the real total.
-- **For a hackathon:** FEMA damage data is very noisy. R² around 0.4–0.5 from depth, coverage, location and weather is respectable, and the storm holdouts show it isn’t just memorizing.
+- **For geographic planning:** aggregate errors need separate validation. Beryl totals were 17% low, but Harvey totals were 69% low and Laura totals 252% high in leave-event-out checks. Do not use these results to prioritize aid.
+- **For judges:** report measured results and their limits; no significance or field-readiness claim has been established.
 
 **What we tried (all in `model_experiments.py`):**
 
-| Change | Random homes | Unseen storms (excl. Harvey) | Result |
+| Change | Random records | Unseen storms (excl. Harvey) | Result |
 | --- | --- | --- | --- |
 | First version | 19% | 32% | Starting point |
-| Tuning (tree depth, learning rate, loss settings) | about 19% | 31–35% | No real gain; ±2 points is noise |
+| Tuning (tree depth, learning rate, loss settings) | about 19% | 31–35% | No real gain; significance not established |
 | Predict damage as a share of coverage | 19% | 34% | Fixes low totals on new storms |
 | + map location | 26% | 37% | Big gain |
 | + zip history (average damage in that zip in other storms) | 28% | 38% | Biggest single gain |
@@ -259,16 +263,16 @@ If asked about the first damage model, open **Inspect the original financial mod
 
 | Test | First version | Current version |
 | --- | --- | --- |
-| Random 20% of homes | 19% less error, R² 0.32 | 29% less error, R² 0.44 |
+| Random 20% of claim records | 19% less error, R² 0.32 | 29% less error, R² 0.44 |
 | Beryl held out | 55% less error, R² −0.30 | 59% less error, R² −0.02 |
-| Beryl average per home | $14,260 predicted vs $24,986 | $20,651 predicted vs $24,986 |
+| Beryl average per claim record | $14,260 predicted vs $24,986 | $20,651 predicted vs $24,986 |
 | Each storm held out (excl. Harvey) | 34% less error | 36% less error, beats baseline on 9 of 10 |
 
-**Is zip history cheating?** No. In every test it is computed only from the storms the model trained on, so it’s what a team would already know about a zip before the next storm. Training rows use out-of-fold values so the model can’t memorize its own claims.
+**How is ZIP history computed?** Evaluation ZIP means use fitting records only; fitting rows use random-row out-of-fold means. These may include the same event and repeat properties. The interactive grid uses all retained records, including the selected event. Leave-event-out tests can train on later events, so they are not chronological forecasts.
 
 **Weak spots to admit if asked:** Harvey held out still doesn’t beat the baseline (it is 91% of all claims, so there is nothing comparable left to learn from). Laura and Nicholas totals swing a lot because they have only 20 and 140 claims.
 
-**Demo:** the estimator now has a **Zip code** picker. The 77 zips with at least 200 past claims each get their own estimate; “Typical home in county” covers the rest. Try Harvey, Harris, Zone X, 3 ft, $250,000: a typical Harris home is about $110k, while zip 77079 is about $215k.
+**Demo:** the estimator now has a **Zip code** picker. The 77 zips with at least 200 retained claim records each get their own estimate; “County reference for Harris” covers the rest. Try Harvey, Harris, Zone X, depth code 3, $250,000: a Harris county reference is about $110k, while zip 77079 is about $215k.
 
 ## 5. Prepared answers to likely judge questions
 
@@ -426,7 +430,7 @@ This section explains every term that appears in the app or in this guide, in pl
 | **Persistence** | The wind baseline: assume the strongest gust over the next six hours equals the gust right now | “assuming the wind stays the same” |
 | **MAE (mean absolute error) / average error** | On average, how far off the estimate is, in dollars or mph. Lower is better | “average miss” |
 | **“29% lower MAE” / “less error”** | The model's average miss is 29% smaller than the baseline's average miss | “29% less error than the baseline,” never “29% accurate” |
-| **Zip history** | Each zip code's average damage in the other storms the model trained on | “how hard that zip was hit in past storms” |
+| **Zip history** | Smoothed ZIP mean damage from fitting records; the demo includes the selected event | “how hard that zip was hit in past storms” |
 | **Share of coverage damaged** | What the model predicts: damage divided by coverage, from 0 to 1. Multiplying by coverage gives dollars | “it predicts what fraction of the home's coverage gets damaged” |
 | **R²** | A stricter score that punishes big misses heavily. 1 is perfect; 0 equals guessing the average of the test data; below 0 is worse than that | Only bring it up if asked |
 | **Negative R² on Beryl** | On Beryl, the model made some large misses on individual claims, so under this strict score it did worse than guessing Beryl's own average | “it still has large misses on individual claims; more storms are the next step” |
@@ -498,3 +502,4 @@ This section explains every term that appears in the app or in this guide, in pl
 **SAY:** “Recorded depth is the water depth written on the claim. The unit isn't stated, so we don't call it feet.”
 
 **SAY:** “Negative R² means it still makes some big misses on individual claims in a new storm. More storms are our next step.”
+
