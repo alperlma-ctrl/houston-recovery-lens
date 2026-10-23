@@ -1,18 +1,35 @@
-# Decision Room: the distinctive workflow
+# Hurricane Recovery Model (HRM)
 
-Allocate a fixed appointment budget, stress-test it against four historical county claim distributions, compare equal and pooled-history baselines, and export a decision receipt. Default 100-slot worst-scenario overlap: equal 41.8%, pooled history 37.3%, rounded maximin 59.2%. These scores describe fit to selected historical mixes, not future demand, service outcomes, or independent model validation. The separate wind replay supplies the machine-learning experiment.
+Siddharth Korampalli and Andrew Perlman · Track 1, Hurricane Preparedness & Recovery
 
-# Houston Recovery Lens
+**Live app:** https://hurricane-recovery-model-hrm.vercel.app/ · **Offline demo:** `OPEN_DEMO.html` in this repository.
+
+## Results at a glance
+
+| Part | What it does | Measured result |
+| --- | --- | --- |
+| **Decision Room** | Splits 100 recovery appointments across five counties and stress-tests the plan against four historical storms | Worst-storm historical overlap: equal split 41.8%, pooled history 37.3%, stress-tested mix **59.2%** |
+| **Damage model** (XGBoost, 10 storms, 54,697 claim records) | Estimates a flooded home's assessed building damage from recorded depth, coverage, flood zone, location, ZIP history and storm weather | **29%** less error than the training-median baseline on held-out claim records (R² 0.44); **59%** less on Beryl with Beryl left out of fitting; Beryl total about 17% low |
+| **Wind model** (gradient boosting) | Estimates the strongest gust in the next six hours from the current and previous six hours | **13.8%** less error than persistence on Beryl; lower error on all three extra 2026 weather windows |
+
+Our first damage model failed: it predicted $0 for every Beryl claim. We rejected it, added recorded water depth, then grew the model from four storms to ten and compared 24 versions.
+
+## Decision Room: the distinctive workflow
+
+Allocate a fixed appointment budget, stress-test it against four historical county claim distributions, compare equal and pooled-history baselines, and export a decision receipt. These scores describe fit to selected historical mixes, not future demand, service outcomes, or independent model validation. The damage and wind models are the machine-learning parts.
 
 ## Problem and user
 
-A local recovery coordinator needs to understand two different time horizons: changing storm conditions over the next few hours and the historical scale of recovery afterward. Recovery Lens combines a testable wind-replay experiment, a county damage atlas, and a transparent appointment-capacity scenario.
+A local recovery coordinator needs to understand two different time horizons: changing storm conditions over the next few hours and the historical scale of recovery afterward. HRM combines a decision rehearsal, a damage model, a testable wind-replay experiment, a county damage atlas, and a transparent appointment-capacity scenario.
 
 ## The finished demo
 
-1. **Wind replay:** move the historical cutoff hour, inspect the estimated peak gust over the next six hours, compare with a persistence baseline, and reveal the recorded outcome.
-2. **Recovery atlas:** compare observed assessed building damage among eligible insured claims across four storms and five counties. Inspect flood-zone cohorts, rainfall context, and sample support.
-3. **Capacity plan:** edit assumed appointment requests and available slots, review an integer allocation, and export the assumptions and result together.
+1. **Decision Room:** compare equal, pooled-history and stress-tested appointment plans across historical storms, and export a decision receipt.
+2. **Predict damage:** change recorded depth, coverage, county, ZIP and flood zone to see an XGBoost building-damage estimate, plus a Harvey-weather replay ranked by ZIP code.
+3. **Wind replay:** move the historical cutoff hour, inspect the estimated peak gust over the next six hours, compare with a persistence baseline, and reveal the recorded outcome.
+4. **Recovery atlas:** compare observed assessed building damage among eligible insured claims across four storms and five counties. Inspect flood-zone cohorts, rainfall context, and sample support.
+5. **Capacity plan:** edit assumed appointment requests and available slots, review an integer allocation, and export the assumptions and result together.
+6. **Evidence:** every evaluation window, the weak spots, and the rejected first model.
 
 The complete demo works offline in a single HTML file and requires no paid API, installation, or account connection.
 
@@ -29,7 +46,19 @@ The wind target is the maximum gust in hours **t+1 through t+6**. Thirteen input
 
 Four candidates were compared: persistence, ridge regression, residual gradient boosting, and gradient boosting. Gradient boosting had the lowest Nicholas average error.
 
-## Measured results
+## Damage model
+
+The damage model uses the 54,697 eligible claim records that have a recorded depth code of 0–10, from the four organizer storms plus six smaller flood events in the claims file, with ERA5 weather added for those six. XGBoost predicts the share of building coverage that was damaged, using recorded depth, coverage, flood zone, county, map location, each ZIP code's damage history in the fitting records, and the storm's total rain and peak gust. Water depth carries 49% of the feature importance.
+
+| Check | Model average error | Baseline average error | Reduction | R² |
+| --- | ---: | ---: | ---: | ---: |
+| Random 20% of claim records | $39,598 | $55,733 (training median) | 29% | 0.44 |
+| Beryl left out of fitting | $19,382 | $47,229 (other-storm median) | 59% | −0.02 |
+| Beryl, always predicting $0 | | $24,986 | 22% | |
+
+Holding out each of the ten storms in turn, the model beats the training median on 9 of 10, with 36% less error outside Harvey. Harvey holds 91% of the records and does not beat its baseline when held out, so the pooled improvement across all ten holdouts is only 0.7%. Storm totals vary: Beryl was 17% low, Harvey 69% low and Laura 252% high.
+
+## Wind model results
 
 | Evaluation | Model average error | Persistence average error | Relative reduction |
 | --- | ---: | ---: | ---: |
@@ -48,6 +77,7 @@ The additional windows each had lower average error than persistence. Gains are 
 - Claims exclude uninsured or unreported losses. Their share in a flood zone is not a probability that a home floods. Damage summaries with fewer than 20 eligible records are suppressed in the demo.
 - Capacity values are editable **assumed appointment requests**. The allocation is a transparent arithmetic scenario; it does not predict need or route emergency crews. Historical claim mix is optional and explicitly labeled as a scenario input.
 - An earlier financial severity model failed by predicting zero for all Beryl claims. It remains documented and excluded from planning estimates.
+- The claim file does not state the depth unit, so depth is kept as a recorded code from 0 to 10. Beryl and the storm holdouts were inspected while comparing model versions, so they are development checks, not untouched final tests. The interactive estimator is refitted on all records, including the selected storm.
 
 ## Verification and reproducibility
 

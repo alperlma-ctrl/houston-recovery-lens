@@ -6,6 +6,14 @@ A Track 1 hurricane preparedness and recovery research demo for the Code[Coogs] 
 
 HRM opens with a Decision Room: allocate a fixed appointment budget, stress-test the county mix across historical storms, compare simple strategies, and export a decision receipt. A six-hour wind replay, historical recovery atlas, and assumed-request capacity planner support the decision workflow. It works offline in a single browser file and includes reproducible analysis and visible limitations.
 
+**Live app:** https://hurricane-recovery-model-hrm.vercel.app/ · **Offline demo:** `OPEN_DEMO.html` · **Two-page summary:** [JUDGES_BRIEF.md](JUDGES_BRIEF.md)
+
+## Results at a glance
+
+- **Decision Room:** for 100 appointments across five counties, the stress-tested mix raises the worst-storm historical overlap from 41.8% (equal split) to **59.2%**.
+- **Damage model:** XGBoost on **54,697** claim records from **10 storms** has **29%** less error than the training-median baseline on held-out claim records (R² 0.44), and **59%** less on Beryl with Beryl left out of fitting. Our first damage model predicted $0 for every Beryl claim and was rejected.
+- **Wind model:** gradient boosting has **13.8%** less error than persistence on Beryl's six-hour peak gust, and lower error on all three extra 2026 weather windows.
+
 ![Decision Room preview](Recovery_Lens_Preview.png)
 
 ## Start here
@@ -13,13 +21,14 @@ HRM opens with a Decision Room: allocate a fixed appointment budget, stress-test
 Open **OPEN_DEMO.html** here, choose **Download raw file**, and open the downloaded file. Download and extract **Houston_Recovery_Lens.zip** for the complete source, original data, fitted models, and runnable folder layout. Selected source files are also viewable here. No API key or plugin is needed.
 
 1. **Decision Room:** edit a budget, choose historical scenarios, compare equal / pooled-historical / maximin allocation, and export a readable HTML receipt with its full calculation record. The default 100-slot exercise scores 41.8% for equal allocation and 59.2% for the rounded stress-tested mix on worst-scenario historical distributional overlap. This is scenario fit, not people helped or forecast accuracy.
-2. **Wind replay:** select a weather window and county, move the cutoff hour, compare the model with persistence, and reveal the recorded following six hours.
-3. **Recovery atlas:** compare observed building damage among eligible flood insurance claim records across four storms and five counties.
-4. **Capacity plan:** edit assumed appointment requests, set available slots, review the allocation, and export the assumptions and plan together.
-5. **Evidence:** inspect model selection, every evaluation window, the severe-peak weakness, and the earlier rejected financial model.
+2. **Predict damage:** change recorded depth, coverage, county, ZIP code and flood zone to see an XGBoost building-damage estimate, and see a Harvey-weather replay ranked by ZIP code.
+3. **Wind replay:** select a weather window and county, move the cutoff hour, compare the model with persistence, and reveal the recorded following six hours.
+4. **Recovery atlas:** compare observed building damage among eligible flood insurance claim records across four storms and five counties.
+5. **Capacity plan:** edit assumed appointment requests, set available slots, review the allocation, and export the assumptions and plan together.
+6. **Evidence:** inspect model selection, every evaluation window for both models, the severe-peak weakness, and the earlier rejected financial model.
 The presenter guide is external: open **PRESENTATION_GUIDE.html** for the two-minute route, detailed click-by-click instructions, reset steps, verified results, and judge answers. It is not a tab in the app.
 
-The standalone HTML embeds all demo assets and data, including typography fallbacks. The multi-file demo may use an internet font when available. The GitHub repository stores the project privately; it is not a hosted app URL.
+The standalone HTML embeds all demo assets and data, including typography fallbacks. The multi-file demo may use an internet font when available. The live app link above is a hosted copy of the same page.
 
 ## The wind model
 
@@ -66,6 +75,8 @@ An optional historical claim mix scales a storm's eligible claim shares into 200
 
 ## Files and reproduction
 
+This repository holds the source, documents and standalone demo. **Houston_Recovery_Lens.zip** adds the `data/` folder, model objects, `results/demo_data.json`, and the `check_causality.py`, `check_capacity.cjs` and `check_decision.cjs` verification scripts referenced below; run them from the extracted folder.
+
 - `OPEN_DEMO.html` and `demo/`: standalone and multi-file interfaces.
 - `analysis.ipynb`: **eight executed code cells** with explanations and outputs.
 - `train_model.py`: claims cleaning, joins, rejected financial experiment, and historical summaries.
@@ -76,7 +87,7 @@ An optional historical claim mix scales a storm's eligible claim shares into 200
 - `JUDGES_BRIEF.md`: concise problem, method, measured results, and limits.
 - `data_dictionary.md`: fields, joins, derived features, and scenario definitions.
 - `data/`: original organizer extracts and a separate `external_validation/` folder.
-- `results/`: quality audit, hashes, model objects, all metrics and predictions, and `Wind_Model_Evidence.png`.
+- `results/`: quality audit, hashes, model objects, all metrics and predictions. `Wind_Model_Evidence.png` is at the repository root.
 
 To rerun, use Python 3.12 in this extracted project folder, install `requirements.txt`, then run `python train_model.py` and `python train_wind_model.py`. The added data is already included; the fetch script is optional when reproducing requests. Run `python make_evidence_figure.py` to regenerate the figure. In Colab, the notebook accepts the complete project ZIP when files are not already present.
 
@@ -110,7 +121,7 @@ The claim field does not state its depth unit, so the model keeps recorded depth
 
 **Ten storms.** Besides the four organizer storms, the claims file has six smaller flood events with no weather: Spring 2024 flooding, Beta, Arthur, Alberto, Fall 2018 flooding, and Laura. `fetch_damage_weather.py` downloads Open-Meteo ERA5 weather for each one (four days before to two days after its busiest claim date) into `data/external_damage/`. Holding out each of the ten storms in turn, the model beats the training-median baseline on 9 of 10, with 36% less error outside Harvey. Harvey holds 91% of the claims, so the model trains with it in every other test. The estimator suppresses county/storm/zone cohorts with fewer than 50 retained depth-coded records. Numeric inputs clamp to the exported grid, show the value used, and retain the last valid estimate for blank input. Interpolated values blend four neighboring grid predictions.
 
-**Model experiments.** `model_experiments.py` compares 24 versions on the same tests (random 20% holdout, Beryl held out, and each storm held out). Tuning tree depth, learning rate and loss settings changed results by about ±2 points, without evidence establishing statistical significance. The gains came from predicting the share of coverage damaged, which brought unseen-storm totals much closer, and from map location and zip history, which raised the random-holdout improvement from 19% to 29% and R² from 0.32 to 0.44. Removing storm weather cut the unseen-storm improvement from 32% to 14%. Zip history is computed only from training storms in every test, with out-of-fold values for training rows. In the demo, the 77 zips with at least 200 claim records each have their own estimate; other selections use county reference inputs.
+**Model experiments.** `model_experiments.py` compares 24 versions on the same tests (random 20% holdout, Beryl held out, and each storm held out). Tuning tree depth, learning rate and loss settings changed results by about ±2 points, without evidence establishing statistical significance. The gains came from predicting the share of coverage damaged, which brought unseen-storm totals much closer, and from map location and zip history, which raised the random-holdout improvement from 19% to 29% and R² from 0.32 to 0.44. Removing storm weather cut the unseen-storm improvement from 32% to 14%. Zip history is computed from fitting records only in every test, with out-of-fold values for fitting rows (see the review notes below). In the demo, the 77 zips with at least 200 claim records each have their own estimate; other selections use county reference inputs.
 
 
 ## Review notes for the expanded damage experiment

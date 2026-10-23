@@ -6,7 +6,7 @@ This is your speaking guide, separate from the app. Keep it beside the demo. Quo
 
 ## 1. Prepare your screen
 
-1. Open **Houston_Recovery_Lens.html**. Open this guide in a second window or on another device. If sharing your screen, share only the app window.
+1. Open **OPEN_DEMO.html**. Open this guide in a second window or on another device. If sharing your screen, share only the app window.
 2. Refresh the app once. It starts on **Decision Room**, with **100** appointments, all four storm boxes checked, and **20** appointments per county.
 3. Keep the browser near 100% zoom and scroll when necessary. Some controls and export buttons sit below the map. Avoid shrinking the page until labels are unreadable.
 4. Decide who speaks and who clicks. Either person can do both; if presenting together, agree on the handoff before starting.
@@ -108,7 +108,7 @@ These are extended-demo and follow-up instructions. They are not all part of the
 
 **SAY:** “For each county, we take the smaller of its appointment-budget share and its share of eligible historical claims. We add those overlaps, then report the weakest score across the selected storms. A perfect score would match the historical distribution exactly with the whole budget assigned.”
 
-**PRESS:** Click **↓ Export decision receipt**. During the longer demo, open the downloaded **Recovery_Lens_Decision_Receipt.html**.
+**PRESS:** Click **↓ Export decision receipt**. During the longer demo, open the downloaded **HRM_Decision_Receipt.html**.
 
 **EXPECT:** Budget, unassigned slots, county appointments, selected storm scores, baseline comparisons, method, limits, and an expandable **Complete calculation record**.
 
@@ -401,7 +401,7 @@ This section explains every term that appears in the app or in this guide, in pl
 | --- | --- | --- |
 | **Claim record** | One flood insurance claim from FEMA's National Flood Insurance Program: one house, one storm, and how much damage the inspector recorded | “claim records,” not “homes,” because the same house can appear in more than one storm |
 | **Eligible claim records** | The claims we kept: single-family houses, one of the four storms, a known building damage amount, and coverage between $1 and $250,000 | “60,020 eligible claim records” |
-| **54,000 records** (damage tab) | The eligible claims that also have a usable recorded water-depth value from 0 to 10 | “the claims with a recorded depth” |
+| **54,697 records** (damage tab) | The eligible claims that also have a usable recorded water-depth value from 0 to 10 | “the claims with a recorded depth” |
 | **Single-family / occupancy codes 1 and 11** | FEMA's codes for a regular house, as opposed to apartments or businesses | “single-family houses” |
 | **Building damage** | Damage to the structure itself: walls, floors, wiring. Not furniture or belongings, and not the insurance payout | “assessed building damage” |
 | **Coverage** | How much flood insurance the house had on the building, up to $250,000. It is an insurance limit, not the home's value | “building coverage” |

@@ -1,4 +1,4 @@
-# Recovery Lens Data Dictionary
+# Hurricane Recovery Model (HRM) Data Dictionary
 
 The original field descriptions are supplied by the organizer's Challenge 1 brief. Derived variables and analysis rules are documented below. The project preserves all four source files unchanged.
 

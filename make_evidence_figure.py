@@ -32,7 +32,7 @@ b.set_xlim(0,23);b.set_xlabel('Model mean absolute error (mph)',labelpad=15);b.t
 b.text(beryl['mae_mph']+.45,1,f"{beryl['mae_mph']:.1f}",va='center',color='#145f52')
 b.text(beryl['peak_decile_mae_mph']+.45,0,f"{beryl['peak_decile_mae_mph']:.1f}",va='center',color='#8c4e21')
 b.set_title('Severe gusts remain difficult',loc='left',fontsize=13,fontweight='bold',pad=24)
-fig.suptitle('Houston Recovery Lens  |  Wind model evidence',x=.035,y=.97,ha='left',fontsize=20,fontweight='bold',color='#17383d')
+fig.suptitle('Hurricane Recovery Model (HRM)  |  Wind model evidence',x=.035,y=.97,ha='left',fontsize=20,fontweight='bold',color='#17383d')
 fig.text(.035,.895,'Six-hour peak gust hindcast using current and earlier reanalysis. Model selection uses Nicholas.',fontsize=10,color='#61746c')
 fig.text(.035,.12,'Extra 2026 windows: 3.53 mph model MAE vs 3.68 mph persistence MAE, a 3.9% relative reduction.\nBeryl is a development replay; 2026 windows check the frozen model. Correlated windows are not independent storms.',fontsize=9,color='#526961',linespacing=1.6)
 fig.text(.035,.035,'Source: organizer weather extract and Open-Meteo / Copernicus ERA5 additional windows. Nominal window labels derive from organizer tracks.\nRetrospective research results; not an operational warning system. Severe Beryl windows tend to be underestimated.',fontsize=8,color='#73847d',linespacing=1.6)

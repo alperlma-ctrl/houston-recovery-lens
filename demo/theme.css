@@ -51,3 +51,4 @@ body:not(.decision-page) button:hover{filter:brightness(1.12)}
 body:not(.decision-page) .barfill{background:#5d7a73}body:not(.decision-page) .barrow.active .barfill,body:not(.decision-page) .capacity-layout .barfill{background:#edc66b!important}
 body:not(.decision-page) .replay-chart-wrap,body:not(.decision-page) .map-wrap{background:radial-gradient(ellipse at 50% 35%,#1b343b,#142d34 72%)}
 body:not(.decision-page) .field input[type=number]{border-radius:0}
+body:not(.decision-page) .detail select{max-width:65%;font-family:Arial,sans-serif;letter-spacing:0}
