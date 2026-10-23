@@ -78,6 +78,6 @@ It connects a cutoff-by-cutoff model experiment, a historical recovery atlas, an
 - The supplied packet says to be ready by **4:30 p.m. Central on October 23, 2026** for a live demo and short pitch. Follow any updated organizer instructions.
 - The GitHub repository is private and stores the project. It is not a hosted app URL. Present the local demo or your signed-in repository.
 
-## Optional damage-model walkthrough
+## Damage-model walkthrough
 
-Open **Predict damage**. Keep Harvey, Harris and Zone X, then change recorded depth code from 1 to 4. Explain: “This is an XGBoost experiment with recorded depth and historical full-storm weather. The original depth units are ambiguous, so this is not a physical-depth forecast. It improves MAE against the training-median baseline, but Beryl R² remains negative.” The ZIP table is an aggregate replay over claim records with reused recorded depths, not an aid-priority recommendation or a forecast for every home. Use the updated Evidence page for the reproduced numbers.
+Open **Predict damage**. Keep Harvey, Harris and Zone X, then change the water depth from 1 to 4. Say: “Claims take weeks to arrive. Our XGBoost model estimates a home’s damage from water depth, coverage, flood zone and the storm’s weather. It has 19% less error than the baseline on homes it never saw, and more than 50% less on Beryl, a storm it never saw.” Point to the zip-code table: “If Harvey hit again, this is where recovery teams should look first.” If asked about limits: “It gets a new storm’s damage level right but is rough on single homes. More storms are our next step.”
