@@ -198,7 +198,7 @@ def main():
     pd.DataFrame(county_rows).to_csv(OUT/'county_storm_summary.csv',index=False)
     # No rows are deduplicated without a unique claim ID: redacted rows can collide legitimately.
     manifest={'retrieved_date':'2026-10-23','source_folder':payload['sources']['folder'],
-        'files':[{'name':p.name,'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in DATA.iterdir()],
+        'files':[{'name':p.relative_to(DATA).as_posix(),'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(DATA.rglob('*')) if p.is_file()],
         'python':platform.python_version(),'numpy':np.__version__,'pandas':pd.__version__,'scikit_learn':sklearn.__version__}
     (OUT/'data_manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
     joblib.dump({'pipeline':best_model,'baseline':baseline,'features':FEATURES,'metrics':metrics},OUT/'trained_model.joblib')

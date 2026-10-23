@@ -71,3 +71,38 @@ Names are explicitly mapped because the source labels differ. Weather is aggrega
 - **R²:** performance relative to variation in the evaluation target; negative values indicate worse squared error than predicting that evaluation sample's own mean.
 
 Damage summaries with fewer than twenty eligible records are suppressed in the demo. Historical sums and means are retained in analysis artifacts for reproducibility. The deployed or offline interface contains aggregates, with no individual claim coordinates.
+
+
+## Six hour wind model additions
+
+`train_wind_model.py` generates a row at each eligible hourly cutoff after six hours of history and before six hours of future labels. The target is the maximum `wind_gusts_10m` value in t+1 through t+6. Each input timestamp is at or before t. No storm identity, future weather, financial outcome, or whole-storm rainfall total enters this model.
+
+| Feature | Meaning | Unit |
+| --- | --- | --- |
+| gust | Current 10 m gust | mph |
+| wind | Current 10 m sustained wind | mph |
+| wind100 | Current 100 m sustained wind | mph |
+| pressure | Current surface pressure | hPa |
+| pressure_change_3h | Current pressure minus pressure at t−3 | hPa |
+| gust_change_3h | Current gust minus gust at t−3 | mph |
+| gust_max_6h | Maximum gust from t−6 through t | mph |
+| gust_mean_6h | Mean gust from t−6 through t | mph |
+| rain_3h | Sum of precipitation at t−2, t−1, and t | inches |
+| lat and lon | County reference coordinates | degrees |
+| direction_sin and direction_cos | Circular encoding of current wind direction | unitless |
+
+The original weather yields 3,720 causal samples: 2,160 training, 660 selection, and 900 Beryl development replay samples. Added weather yields 4,260 evaluation samples. Target windows overlap and county points are nearby; rows are correlated.
+
+The separate additional-weather folder contains three raw multi-location JSON responses, a merged 4,440-row CSV, and a request/attribution manifest. Dates and names are derived from the organizer's 2026 tracks. Models, mph/inch units, and timezone are explicit in the requests. These are ERA5 weather-window checks; local storm impacts and attribution were not independently verified.
+
+`wind_demo_data.json` contains rounded model estimates and reference outcomes for replay. `wind_hindcast_predictions.csv` retains full-precision numeric outputs. Model metrics use full precision. The UI hides future recorded gusts until revealed and does not use hidden future values to scale the unrevealed chart. Current gusts above the training maximum trigger a labeled persistence fallback; reported raw-model scores are not replaced with fallback scores.
+
+The shaded wind reference band adds the 10th and 90th percentiles of Nicholas signed residuals. It is descriptive and has no coverage guarantee. It is not applied to fallback estimates.
+
+## Appointment capacity scenario additions
+
+- Assumed request values and available capacity are nonnegative whole numbers entered by the user.
+- A preferred county floor is attempted, then unfilled capacity is distributed proportionally to remaining assumed demand using integer largest remainders.
+- Allocations never exceed assumed requests; total assigned slots equal the smaller of capacity and total assumed requests.
+- Exports retain scenario source, total capacity, preferred floor, assumed requests, allocations, and unserved requests.
+- Historical claim-share scenarios are explicitly hypothetical. They do not estimate population, uninsured need, or actual appointment demand.

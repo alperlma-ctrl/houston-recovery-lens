@@ -28,9 +28,9 @@ window.RECOVERY_DATA={
       },
       {
         "model": "Linear ridge regression",
-        "mae": 10559.600239784966,
+        "mae": 10559.600239784972,
         "median_absolute_error": 4840.0,
-        "r2": -0.4409796481685968
+        "r2": -0.4409796481685966
       }
     ],
     "test_baseline": {
