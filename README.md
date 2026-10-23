@@ -93,3 +93,7 @@ AI coding assistance was used and is disclosed in the presentation. No user inte
 ## Reproduce the Decision Room
 
 Run `python optimize_rehearsal.py` after generating `results/demo_data.json`. This writes all 15 nonempty historical-scenario combinations to `results/decision_data.json`. The interface performs deterministic largest-remainder rounding for the chosen budget and recalculates scores. Run `node verification/check_decision.cjs` to check 315 policy/budget/scenario combinations. The optimization uses known historical mixes; it is descriptive decision analysis, not predictive validation.
+
+## Visual motion
+
+The Decision Room includes an ambient radar sweep, animated score gauge, county-fill transitions, staggered entrance, and animated comparison bars. The radar is decorative and shows no live weather. Use **Pause animation** to stop motion. Device reduced-motion preferences disable animated effects automatically. Calculations and exported receipts always use the actual final scores.

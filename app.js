@@ -55,10 +55,11 @@ function legacyDamageEvidence(){const m=D.metrics,a=D.audit;
  <article class="card panel"><span class="source-tag">04 · PRACTICAL LIMITS</span><h2 style="margin-top:16px">Use the record with care</h2><ul>${D.limitations.map(x=>`<li>${escapeText(x)}</li>`).join('')}</ul><p><strong>Next experiment:</strong> Obtain more independent storms, consistent exposure data, property characteristics, and forecast-time weather. Test against stronger baselines and retain a fresh storm for final evaluation.</p></article><article class="card panel wide"><h3>Sources and reproducibility</h3><p>Data supplied in the organizer’s shared folder on October 23, 2026. The brief attributes the claims to OpenFEMA, weather to Open-Meteo ERA5, tracks to NOAA IBTrACS, and boundaries to the U.S. Census Bureau. The downloadable project includes source-file hashes, cleaning rules, fitted models, metrics, and the analysis notebook.</p><div class="links"><a href="${D.sources.folder}" target="_blank" rel="noopener">Shared source folder ↗</a><a href="${D.sources.brief}" target="_blank" rel="noopener">Organizer dataset brief ↗</a><a href="https://scikit-learn.org/stable/modules/model_evaluation.html" target="_blank" rel="noopener">Metric definitions ↗</a></div></article></section>`;
 }
 function render(){
+ roomMotionStop();
  document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('active',b.dataset.page===state.page));
  document.body.classList.toggle('decision-page',state.page==='decision');
  document.getElementById('app').innerHTML=state.page==='decision'?decisionRoom():state.page==='replay'?windReplay():state.page==='capacity'?capacityPlan():state.page==='explore'?explore():state.page==='evidence'?windEvidence():decisionPitch();
- if(state.page==='decision')bindDecisionRoom(); if(state.page==='replay')bindWindReplay(); if(state.page==='capacity')bindCapacityPlan();
+ if(state.page==='decision'){bindDecisionRoom();bindRoomMotion();} if(state.page==='replay')bindWindReplay(); if(state.page==='capacity')bindCapacityPlan();
  document.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();setPage(b.dataset.open)}));
  document.querySelectorAll('[data-storm]').forEach(b=>b.addEventListener('click',()=>{state.storm=b.dataset.storm;render()}));
  document.querySelectorAll('[data-county]').forEach(b=>{const choose=()=>{state.county=b.dataset.county;render()};b.addEventListener('click',choose);b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose()}})});
