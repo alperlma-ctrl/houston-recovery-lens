@@ -37,3 +37,17 @@ body:not(.decision-page) svg line[stroke="#e4e9e4"],body:not(.decision-page) svg
 body:not(.decision-page) svg [fill="#173d44"]{fill:var(--t-ink)}body:not(.decision-page) svg [stroke="#173d44"]{stroke:var(--t-ink)}
 body:not(.decision-page) svg [fill="#eef4e9"]{fill:var(--t-card2)}
 body:not(.decision-page) .chart-key i[style*="#173d44"]{background:var(--t-ink)!important}
+
+/* same shapes and type as the Decision Room: square edges, Arial text, Georgia numbers, monospace labels */
+body:not(.decision-page){font-family:Arial,sans-serif;--t-line:#365057}
+body:not(.decision-page) .card,body:not(.decision-page) .metric,body:not(.decision-page) .panel,body:not(.decision-page) .replay-toolbar,body:not(.decision-page) .storm-options,body:not(.decision-page) .storm,body:not(.decision-page) .observed,body:not(.decision-page) .hero-note,body:not(.decision-page) .insight,body:not(.decision-page) .split>div,body:not(.decision-page) .warning,body:not(.decision-page) .legacy-evidence,body:not(.decision-page) .pill,body:not(.decision-page) .source-tag,body:not(.decision-page) .bartrack,body:not(.decision-page) .barfill,body:not(.decision-page) select,body:not(.decision-page) input,body:not(.decision-page) button{border-radius:0}
+body:not(.decision-page) .metric strong,body:not(.decision-page) .observed .value,body:not(.decision-page) .outlook-value,body:not(.decision-page) .reveal-result>strong,body:not(.decision-page) .local-stats strong{font-family:Georgia,serif;font-weight:400}
+body:not(.decision-page) .metric .label,body:not(.decision-page) .observed .label,body:not(.decision-page) .field,body:not(.decision-page) .chart-key,body:not(.decision-page) .map-caption,body:not(.decision-page) .scrub-labels,body:not(.decision-page) .evidence-table th,body:not(.decision-page) .replay-toolbar label,body:not(.decision-page) .plan-fields label,body:not(.decision-page) .plan-source,body:not(.decision-page) .scope-line,body:not(.decision-page) .reveal-result>span{font-family:ui-monospace,Consolas,monospace;letter-spacing:.6px}
+body:not(.decision-page) input[type=number],body:not(.decision-page) .plan-fields input,body:not(.decision-page) .demand-row input{font-family:ui-monospace,Consolas,monospace;font-weight:600;border-color:#496168}
+body:not(.decision-page) .secondary{background:transparent;border-color:#526970;color:#dfebeb}
+body:not(.decision-page) .secondary:hover{color:#edc66b;border-color:#edc66b;background:#23383a}
+body:not(.decision-page) .primary,body:not(.decision-page) .reveal-button{font-weight:bold}
+body:not(.decision-page) button:hover{filter:brightness(1.12)}
+body:not(.decision-page) .barfill{background:#5d7a73}body:not(.decision-page) .barrow.active .barfill,body:not(.decision-page) .capacity-layout .barfill{background:#edc66b!important}
+body:not(.decision-page) .replay-chart-wrap,body:not(.decision-page) .map-wrap{background:radial-gradient(ellipse at 50% 35%,#1b343b,#142d34 72%)}
+body:not(.decision-page) .field input[type=number]{border-radius:0}
