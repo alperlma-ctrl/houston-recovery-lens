@@ -164,7 +164,7 @@ def main():
     for county, rows in df.groupby('county'):
         places.append({'place': '', 'county': county, 'lat': rows.lat.median(), 'lon': rows.lon.median(), 'zip_mean': rows.damage.mean()})
 
-    # grid for the demo's estimator, which blends between whole feet since claims only record whole feet
+    # grid for the demo's estimator, which blends between adjacent recorded depth codes; physical units are unresolved
     depths = list(range(0, 11))
     coverages = [25000, 50000, 75000, 100000, 150000, 200000, 250000]
     rows = []
@@ -197,7 +197,7 @@ def main():
     payload = {
         'eligible_n': len(df), 'mixed_test': mixed, 'unseen_storm_test': unseen,
         'storm_tests': per_storm, 'storm_summary': storm_summary,
-        'scope': {'depth': 'Raw recorded code 0..10; inches/feet ambiguity unresolved', 'evaluation': 'Retrospective development checks; random rows are not distinct homes', 'scenario': 'Reuses recorded depth and coverage for each claim record with Harvey weather; repeats across storms can occur'},
+        'scope': {'depth': 'Raw recorded code 0..10; inches/feet ambiguity unresolved', 'evaluation': 'Retrospective development checks; random rows are not distinct homes', 'scenario': 'Reuses recorded depth and coverage with Harvey weather; repeats can occur; demo ZIP history uses all retained records', 'selection': '24 variants compared on these repeatedly inspected development checks; not untouched final tests', 'chronology': 'Event holdouts may fit later events; not chronological forecasts', 'target': 'Damage/coverage clipped to 0..1; assessed damage can exceed coverage', 'zip_history': 'Evaluation encodings use fitting rows only; training OOF splits are random rows, not event/property groups'},
         'cohort_counts': df.groupby(['storm','county','zone']).size().rename('claims').reset_index().to_dict('records'),
         'importance': {k: float(v) for k, v in sorted(grouped.items(), key=lambda kv: -kv[1])},
         'depths': depths, 'coverages': coverages,
@@ -218,4 +218,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
