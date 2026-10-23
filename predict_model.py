@@ -17,6 +17,11 @@ DATA = ROOT / 'data'
 COUNTIES = {'48201': 'Harris', '48157': 'Fort Bend', '48339': 'Montgomery', '48039': 'Brazoria', '48167': 'Galveston'}
 STORMS = {'Hurricane Harvey': 'Harvey', 'Tropical Storm Imelda': 'Imelda', 'Tropical Storm Nicholas': 'Nicholas', 'Hurricane Beryl': 'Beryl'}
 WEATHER_STORMS = {'Hurricane_Harvey_2017': 'Harvey', 'Tropical_Storm_Imelda_2019': 'Imelda', 'Hurricane_Nicholas_2021': 'Nicholas', 'Hurricane_Beryl_2024': 'Beryl'}
+# extra flood events from the same claims file; weather comes from fetch_damage_weather.py
+EXTRA_STORMS = {'Texas Spring Flooding': 'Spring 2024', 'Tropical Storm Beta': 'Beta', '2026-06-Arthur-TS': 'Arthur',
+                'June TS Alberto': 'Alberto', 'Fall 2018 Texas Flooding': 'Fall 2018', 'Hurricane Laura': 'Laura'}
+EXTRA_WEATHER = {'Spring_Flooding_2024': 'Spring 2024', 'Tropical_Storm_Beta_2020': 'Beta', 'Tropical_Storm_Arthur_2026': 'Arthur',
+                 'Tropical_Storm_Alberto_2024': 'Alberto', 'Fall_Flooding_2018': 'Fall 2018', 'Hurricane_Laura_2020': 'Laura'}
 FEATURES = ['depth', 'log_coverage', 'rain_total', 'gust_max', 'zone', 'county']
 
 
@@ -24,12 +29,15 @@ def load():
     claims = pd.read_csv(DATA / 'houston_fema_flood_claims_2017_present.csv', dtype={'countyCode': 'string', 'reportedZipCode': 'string'})
     weather = pd.read_csv(DATA / 'houston_major_storms_hourly_weather.csv')
     weather['storm'] = weather.storm_event.map(WEATHER_STORMS)
+    extra = pd.read_csv(DATA / 'external_damage' / 'extra_storm_weather.csv')
+    extra['storm'] = extra.storm_event.map(EXTRA_WEATHER)
+    weather = pd.concat([weather, extra], ignore_index=True)
     weather['county'] = weather.location.str.split(' (', regex=False).str[0]
     summary = weather.groupby(['storm', 'county'], as_index=False).agg(
         rain_total=('precipitation', 'sum'), gust_max=('wind_gusts_10m', 'max'))
 
     # same eligible claims as the explorer, plus a known water depth
-    claims['storm'] = claims.floodEvent.map(STORMS)
+    claims['storm'] = claims.floodEvent.map({**STORMS, **EXTRA_STORMS})
     claims['county'] = claims.countyCode.map(COUNTIES)
     df = claims[claims.storm.notna() & claims.county.notna() & claims.occupancyType.isin([1, 11])].copy()
     zone = df.ratedFloodZone.fillna('UNKNOWN').astype(str).str.strip().str.upper()
@@ -75,6 +83,16 @@ def test_result(train, test):
             'test_mean_damage': float(test.damage.mean()), 'mean_prediction': float(pred.mean())}
 
 
+def storm_tests(df):
+    # hold out each storm in turn and train on all the others
+    rows = []
+    for storm in df.storm.value_counts().index:
+        r = test_result(df[df.storm != storm], df[df.storm == storm])
+        rows.append({'storm': storm, 'test_n': r['test_n'], 'model_mae': r['model_mae'], 'baseline_mae': r['baseline_mae'],
+                     'zero_baseline_mae': r['zero_baseline_mae'], 'improvement_pct': r['improvement_pct']})
+    return rows
+
+
 def main():
     df, summary = load()
 
@@ -83,6 +101,15 @@ def main():
     mixed = test_result(train, test)
     # Beryl excluded from fitting, but already inspected during project development.
     unseen = test_result(df[df.storm != 'Beryl'], df[df.storm == 'Beryl'])
+
+    per_storm = storm_tests(df)
+    others = [r for r in per_storm if r['storm'] != 'Harvey']
+    four = df[df.storm.isin(STORMS.values())]
+    four_storm = [r for r in storm_tests(four) if r['storm'] != 'Harvey']
+    weighted = lambda rows: 100 * (1 - sum(r['model_mae'] * r['test_n'] for r in rows) / sum(r['baseline_mae'] * r['test_n'] for r in rows))
+    storm_summary = {'storms': len(per_storm), 'beat_baseline': sum(r['improvement_pct'] > 0 for r in per_storm),
+                     'improvement_pct_excl_harvey': weighted(others),
+                     'four_storm_improvement_pct_excl_harvey': weighted(four_storm)}
 
     model = new_model()
     model.fit(features(df), df.damage)
@@ -95,7 +122,7 @@ def main():
     depths = list(range(0, 11))
     coverages = [25000, 50000, 75000, 100000, 150000, 200000, 250000]
     rows = []
-    for w in summary.to_dict('records'):
+    for w in summary[summary.storm.isin(STORMS.values())].to_dict('records'):
         for zone in ['X', 'AE', 'OTHER']:
             for depth in depths:
                 for coverage in coverages:
@@ -116,6 +143,7 @@ def main():
 
     payload = {
         'eligible_n': len(df), 'mixed_test': mixed, 'unseen_storm_test': unseen,
+        'storm_tests': per_storm, 'storm_summary': storm_summary,
         'scope': {'depth': 'Raw recorded code 0..10; inches/feet ambiguity unresolved', 'evaluation': 'Retrospective development checks; random rows are not distinct homes', 'scenario': 'Reuses recorded depth and coverage for each claim record with Harvey weather; repeats across storms can occur'},
         'cohort_counts': df.groupby(['storm','county','zone']).size().rename('claims').reset_index().to_dict('records'),
         'importance': {k: float(v) for k, v in sorted(grouped.items(), key=lambda kv: -kv[1])},
@@ -129,8 +157,8 @@ def main():
     model.save_model(ROOT / 'results' / 'predict_model.ubj')
     (ROOT / 'results' / 'predict_data.json').write_text(json.dumps(payload), encoding='utf-8')
     (ROOT / 'demo' / 'predict.js').write_text('window.PREDICT_DATA=' + json.dumps(payload) + ';\n', encoding='utf-8')
-    (ROOT / 'results' / 'predict_metrics.json').write_text(json.dumps({k: payload[k] for k in ['eligible_n', 'mixed_test', 'unseen_storm_test', 'importance', 'scope']}, indent=2), encoding='utf-8')
-    print(json.dumps({k: payload[k] for k in ['eligible_n', 'mixed_test', 'unseen_storm_test', 'importance', 'scope']}, indent=2))
+    (ROOT / 'results' / 'predict_metrics.json').write_text(json.dumps({k: payload[k] for k in ['eligible_n', 'mixed_test', 'unseen_storm_test', 'storm_tests', 'storm_summary', 'importance', 'scope']}, indent=2), encoding='utf-8')
+    print(json.dumps({k: payload[k] for k in ['eligible_n', 'mixed_test', 'unseen_storm_test', 'storm_summary', 'importance']}, indent=2))
     print(payload['zips'][:5])
 
 

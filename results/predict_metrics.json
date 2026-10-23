@@ -1,35 +1,123 @@
 {
-  "eligible_n": 54000,
+  "eligible_n": 54697,
   "mixed_test": {
-    "train_n": 43200,
-    "test_n": 10800,
-    "baseline_mae": 56263.44907407407,
-    "model_mae": 45440.401435024316,
-    "improvement_pct": 19.23637426635646,
-    "r2": 0.32128374466331355,
+    "train_n": 43757,
+    "test_n": 10940,
+    "baseline_mae": 55732.99305301646,
+    "model_mae": 45166.599083045454,
+    "improvement_pct": 18.95895660927386,
+    "r2": 0.321944938451588,
     "zero_share": 0.0,
-    "zero_baseline_mae": 87961.25916666667,
-    "test_mean_damage": 87961.25916666667,
-    "mean_prediction": 87730.4453125
+    "zero_baseline_mae": 86878.19268738574,
+    "test_mean_damage": 86878.19268738574,
+    "mean_prediction": 87478.28125
   },
   "unseen_storm_test": {
-    "train_n": 52898,
+    "train_n": 53595,
     "test_n": 1102,
-    "baseline_mae": 47622.67876588022,
-    "model_mae": 21702.885734322717,
-    "improvement_pct": 54.42741505361941,
-    "r2": -0.37366976782995587,
+    "baseline_mae": 47228.51724137931,
+    "model_mae": 21108.078028296386,
+    "improvement_pct": 55.30649857073531,
+    "r2": -0.3046956354507939,
     "zero_share": 0.0,
     "zero_baseline_mae": 24986.475499092558,
     "test_mean_damage": 24986.475499092558,
-    "mean_prediction": 14400.6259765625
+    "mean_prediction": 14259.890625
+  },
+  "storm_tests": [
+    {
+      "storm": "Harvey",
+      "test_n": 49776,
+      "model_mae": 69050.84094878042,
+      "baseline_mae": 68186.06838637094,
+      "zero_baseline_mae": 91441.41759080681,
+      "improvement_pct": -1.2682540332275893
+    },
+    {
+      "storm": "Imelda",
+      "test_n": 2982,
+      "model_mae": 29033.49461294132,
+      "baseline_mae": 38067.20154258887,
+      "zero_baseline_mae": 46173.096914822265,
+      "improvement_pct": 23.730945705427832
+    },
+    {
+      "storm": "Beryl",
+      "test_n": 1102,
+      "model_mae": 21108.078028296386,
+      "baseline_mae": 47228.51724137931,
+      "zero_baseline_mae": 24986.475499092558,
+      "improvement_pct": 55.30649857073531
+    },
+    {
+      "storm": "Spring 2024",
+      "test_n": 396,
+      "model_mae": 45179.07227918837,
+      "baseline_mae": 45789.055555555555,
+      "zero_baseline_mae": 69324.66161616161,
+      "improvement_pct": 1.3321595498450467
+    },
+    {
+      "storm": "Beta",
+      "test_n": 186,
+      "model_mae": 18042.534368043303,
+      "baseline_mae": 48530.790322580644,
+      "zero_baseline_mae": 22292.08064516129,
+      "improvement_pct": 62.822500420628046
+    },
+    {
+      "storm": "Nicholas",
+      "test_n": 140,
+      "model_mae": 14028.568911307199,
+      "baseline_mae": 56742.53571428572,
+      "zero_baseline_mae": 11938.992857142857,
+      "improvement_pct": 75.27680295793459
+    },
+    {
+      "storm": "Arthur",
+      "test_n": 44,
+      "model_mae": 26209.744053233753,
+      "baseline_mae": 37825.795454545456,
+      "zero_baseline_mae": 34409.47727272727,
+      "improvement_pct": 30.709338063413604
+    },
+    {
+      "storm": "Alberto",
+      "test_n": 26,
+      "model_mae": 11880.427788367639,
+      "baseline_mae": 55294.307692307695,
+      "zero_baseline_mae": 13986.846153846154,
+      "improvement_pct": 78.5141938036772
+    },
+    {
+      "storm": "Fall 2018",
+      "test_n": 25,
+      "model_mae": 14844.505895996093,
+      "baseline_mae": 47568.14,
+      "zero_baseline_mae": 20952.84,
+      "improvement_pct": 68.79317565076941
+    },
+    {
+      "storm": "Laura",
+      "test_n": 20,
+      "model_mae": 20963.40565338135,
+      "baseline_mae": 62985.3,
+      "zero_baseline_mae": 5037.7,
+      "improvement_pct": 66.7169868947495
+    }
+  ],
+  "storm_summary": {
+    "storms": 10,
+    "beat_baseline": 9,
+    "improvement_pct_excl_harvey": 34.388149800492506,
+    "four_storm_improvement_pct_excl_harvey": 25.287609529176404
   },
   "importance": {
-    "Water depth": 0.5162378549575806,
-    "Home coverage": 0.22030705213546753,
-    "County": 0.10450523346662521,
-    "Storm rain & wind": 0.09558161348104477,
-    "Flood zone": 0.06336823105812073
+    "Water depth": 0.5208813548088074,
+    "Home coverage": 0.22120653092861176,
+    "County": 0.11408010870218277,
+    "Storm rain & wind": 0.08123854547739029,
+    "Flood zone": 0.0625934898853302
   },
   "scope": {
     "depth": "Raw recorded code 0..10; inches/feet ambiguity unresolved",
