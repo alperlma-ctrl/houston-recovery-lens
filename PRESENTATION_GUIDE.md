@@ -357,3 +357,144 @@ If asked about the first damage model, open **Inspect the original financial mod
 5. Have you refreshed after practicing so the short-route examples match?
 
 Finish with: **“A recovery decision you can question, change, and document.”**
+
+## 9. Keeping the scope manageable
+
+The app has six tabs, and nobody has to master all of them. Do not remove features before judging. Cutting tabs now risks breaking the demo and earns no points. Instead, split up what each person talks about.
+
+| Person | Owns these tabs | Can point at, but does not need to explain in depth |
+| --- | --- | --- |
+| Siddharth | **Predict damage** (the XGBoost damage model, the estimator and the ZIP table) | Recovery atlas, since it uses the same claims |
+| Andrew | **Decision Room**, **Wind replay**, **Capacity plan** | Evidence |
+| Either | **Recovery atlas**, **Evidence** | These are supporting data and test results |
+
+If a judge asks about a part the other person built, hand it over. This is a normal answer for a team:
+
+**SAY:** “Andrew built that part, so he can take this one.” Or: “Siddharth built the damage model, so he can explain how it was tested.”
+
+If a judge opens a tab nobody planned to show:
+
+**SAY:** “That tab holds the supporting data and our test results. The main idea is the decision on the first screen.”
+
+You only need three numbers memorized per person. Everything else is in Section 4 and in this glossary.
+
+| Person | Number | What it means |
+| --- | --- | --- |
+| Siddharth | **29%** | The damage model's average miss is 29% smaller than the simple baseline's on claim records it never saw (first version: 19%) |
+| Siddharth | **59%, total 17% low** | With Beryl left out of fitting, its average miss on Beryl was 59% smaller than the older-storm median guess, and its Beryl total was about 17% below the real total |
+| Siddharth | **Water depth** | The input that mattered most to the damage model |
+| Andrew | **41.8% → 59.2%** | Worst-storm match for 100 appointments: equal split versus the stress-tested mix |
+| Andrew | **13.8%** | Wind model's average miss on Beryl is 13.8% smaller than “the wind stays the same” |
+| Andrew | **60,020** | Eligible single-family claim records behind the atlas |
+
+## 10. Plain-English glossary
+
+This section explains every term that appears in the app or in this guide, in plain words. The column on the right says how to describe it accurately, so it matches the wording rules in Section 7.
+
+### Words about the data
+
+| Term on screen | Plain English | Say it like this |
+| --- | --- | --- |
+| **Claim record** | One flood insurance claim from FEMA's National Flood Insurance Program: one house, one storm, and how much damage the inspector recorded | “claim records,” not “homes,” because the same house can appear in more than one storm |
+| **Eligible claim records** | The claims we kept: single-family houses, one of the four storms, a known building damage amount, and coverage between $1 and $250,000 | “60,020 eligible claim records” |
+| **54,000 records** (damage tab) | The eligible claims that also have a usable recorded water-depth value from 0 to 10 | “the claims with a recorded depth” |
+| **Single-family / occupancy codes 1 and 11** | FEMA's codes for a regular house, as opposed to apartments or businesses | “single-family houses” |
+| **Building damage** | Damage to the structure itself: walls, floors, wiring. Not furniture or belongings, and not the insurance payout | “assessed building damage” |
+| **Coverage** | How much flood insurance the house had on the building, up to $250,000. It is an insurance limit, not the home's value | “building coverage” |
+| **Recorded depth code** | How deep the water got inside the house, as written on the claim. The file does not state its unit; most values look like feet, but we have not verified that | “recorded depth,” and if asked: “the unit isn't stated, so we don't call it feet” |
+| **Flood zone** | FEMA's map label for flood risk at the address | “flood zone” |
+| **Zone X** | FEMA's “moderate to low risk” zone, where flood insurance is not required. About half of the eligible claims in these storms came from Zone X | “a share of claim records, not a flood probability” |
+| **Zone AE** | FEMA's high-risk zone near rivers and bayous, where flood insurance is usually required for mortgages | “high-risk zone” |
+| **County FIPS** | A five-digit government code for each county. We join tables on it so names and spelling do not cause mismatches | Only mention if asked about the data joins |
+| **Supported counties** | Brazoria, Fort Bend, Galveston, Harris and Montgomery: the five with both claims and weather | “five counties with matched data” |
+| **Gray / insufficient data counties** | Austin, Chambers, Liberty and Waller have map outlines but no matching claims or weather | “we show them as missing rather than guessing” |
+| **Nominal USD** | Dollars as recorded at the time, with no adjustment for inflation | “not inflation-adjusted” |
+| **Reanalysis / ERA5** | Historical weather rebuilt after the fact by combining past observations with a weather model. It is not what forecasters had in real time | “historical weather data” |
+| **Open-Meteo** | The free weather service we downloaded the extra ERA5 weather from | “a public historical weather source” |
+| **IBTrACS** | NOAA's database of hurricane tracks. The organizers supplied it | “hurricane track data” |
+| **Rain total / peak gust** | The total rainfall and the strongest wind gust in a county during a storm's weather window | “the storm's rain and wind” |
+
+### Words about testing models
+
+| Term on screen | Plain English | Say it like this |
+| --- | --- | --- |
+| **Model** | A formula the computer learns from past examples so it can estimate new cases | |
+| **Training / fitting** | The step where the model learns from examples | “the model learned from Harvey and Imelda” |
+| **Baseline** | The simple guess the model has to beat, such as “always guess the typical damage” | “a simple baseline” |
+| **Training median** | The middle damage value in the training data. Guessing it for every claim is the damage baseline | “the typical-damage guess” |
+| **Always zero** | A second damage baseline that guesses $0 for every claim. It is surprisingly hard to beat on small storms where many claims are low | “it also beats guessing zero” |
+| **Persistence** | The wind baseline: assume the strongest gust over the next six hours equals the gust right now | “assuming the wind stays the same” |
+| **MAE (mean absolute error) / average error** | On average, how far off the estimate is, in dollars or mph. Lower is better | “average miss” |
+| **“29% lower MAE” / “less error”** | The model's average miss is 29% smaller than the baseline's average miss | “29% less error than the baseline,” never “29% accurate” |
+| **Zip history** | Each zip code's average damage in the other storms the model trained on | “how hard that zip was hit in past storms” |
+| **Share of coverage damaged** | What the model predicts: damage divided by coverage, from 0 to 1. Multiplying by coverage gives dollars | “it predicts what fraction of the home's coverage gets damaged” |
+| **R²** | A stricter score that punishes big misses heavily. 1 is perfect; 0 equals guessing the average of the test data; below 0 is worse than that | Only bring it up if asked |
+| **Negative R² on Beryl** | On Beryl, the model made some large misses on individual claims, so under this strict score it did worse than guessing Beryl's own average | “it still has large misses on individual claims; more storms are the next step” |
+| **Held out / holdout** | Data hidden from the model while it learned, used only for testing. This shows it is not just memorizing | “tested on records it never saw” |
+| **Random 20% check** | We hid a random fifth of the claim records, trained on the rest, then tested on the hidden fifth | “a random holdout” |
+| **Beryl excluded from fitting** | We trained without any Beryl claims, then tested on Beryl | “Beryl was left out of fitting.” Do not call it an untouched final test, since we looked at Beryl during development |
+| **Development replay / development check** | A test we used while building the project. Useful, but not a sealed final exam | “a development check” |
+| **Overfitting** | When a model memorizes its training examples and fails on new ones. Holdout tests check for it | |
+| **Feature / input** | One piece of information the model uses, such as water depth or coverage | “input” |
+| **Feature importance / strongest signal** | How much the model leaned on each input. Water depth was the biggest | “describes this model, not proof of cause” |
+| **XGBoost** | A popular machine-learning method that builds many small decision trees, each one fixing the errors of the previous ones. Used for damage | “a gradient-boosted tree model” |
+| **Gradient boosting / histogram gradient boosting** | The same idea of many small decision trees, used here for the wind model | “gradient boosting” |
+| **Decision tree** | A flowchart of yes/no questions, like “is depth above 2?”, that ends in an estimate | |
+| **Ridge regression** | A simpler straight-line model. One of the wind candidates, and the original rejected damage model | “a simpler linear model” |
+| **Monotone constraint** | A rule we gave the damage model: more water or more coverage can never lower the estimate | “deeper water never lowers the estimate” |
+| **Tweedie objective** | A setting for data with many small values and a few huge ones, like damage dollars | Only if asked |
+| **Interpolation grid** | The demo stores model estimates at many depth and coverage points and blends the four nearest ones, so it runs instantly offline | “precomputed estimates, blended between points” |
+| **Cohort / fewer than 50 records suppressed** | A county, storm and zone combination. If it has too few claims, the app refuses to estimate instead of guessing | “that's the sparse-data guard working” |
+| **Clamped to the grid** | If you type a number outside the supported range, the app uses the nearest allowed value and says so | “it uses the nearest supported value and tells you” |
+
+### Words about the wind replay
+
+| Term on screen | Plain English | Say it like this |
+| --- | --- | --- |
+| **Cutoff hour** | The pretend “now.” The model only sees weather from this hour and the six before it | “the model can't see the future” |
+| **Next six hours / t+1 to t+6** | The six hours after the cutoff, whose strongest gust the model estimates | |
+| **Estimated peak gust** | The model's guess for the strongest gust in the next six hours | |
+| **Reveal what happened** | Shows the real recorded gusts, so you can compare | |
+| **Training / selection / development roles** | Harvey and Imelda taught the model; Nicholas picked the best candidate; Beryl checked it | “each storm had one job” |
+| **Additional 2026 windows** | Three extra weather periods we downloaded after the model was frozen, as an outside check | “extra checks after the model was locked” |
+| **Frozen model** | The model was locked before the extra checks, so they could not influence it | |
+| **Residual / reference band** | The shaded band showing the typical miss size seen on Nicholas. Not a guarantee on another storm | “a typical-error band, not a guarantee” |
+| **Persistence fallback** | When the current gust is stronger than anything in training, the app shows the persistence guess instead of trusting the model | “it falls back to the simple guess in extreme wind” |
+| **Severe peaks / highest-gust tenth** | The strongest 10% of Beryl's wind windows, where the model missed by about 18.9 mph and guessed too low | “strong peaks remain hard” |
+| **Correlated windows** | Overlapping hours and nearby counties are similar, so thousands of rows are not thousands of separate storms | “the row count overstates independent evidence” |
+| **Causality / look-ahead check** | An automated test that changes future weather and confirms the model's inputs do not change | “we tested that no future data leaks in” |
+
+### Words about the Decision Room and Capacity plan
+
+| Term on screen | Plain English | Say it like this |
+| --- | --- | --- |
+| **Appointment budget** | How many recovery appointments the coordinator can hand out, 100 by default | |
+| **Allocation / mix** | How those appointments are split across the five counties | “the plan” |
+| **Historical stress scenarios** | Each past storm is a “what if the next storm looks like this one” test | “past storms as test cases” |
+| **Historical fit / alignment / overlap** | How closely the plan's county split matches where that storm's claims actually came from, from 0% to 100% | “historical alignment,” never “accuracy” or “people helped” |
+| **Worst scenario** | The past storm where the plan matched worst. The score shown is this one | “its weakest storm” |
+| **Equal** | Give every county the same number of appointments | |
+| **Historical mix / pooled history** | Split appointments by all four storms' claims added together | |
+| **Stress-tested mix / maximin** | The split that makes the worst storm's match as high as possible | “the plan that holds up best in its worst storm” |
+| **Linear programming / optimization** | A math method that finds the best split under the rules. It is not machine learning | “transparent optimization” |
+| **Largest remainder rounding** | Turns fractional shares like 23.6 into whole appointments that still add up to the budget | “rounds to whole appointments fairly” |
+| **Receipt / export** | A downloadable page recording the plan, the assumptions and the scores | “a record of the decision” |
+| **Assumed appointment requests** | In Capacity plan, your own guess of how many people ask for help in each county. Not predicted need | “assumed requests” |
+| **Preferred minimum / floor** | Every county gets at least this many appointments if the budget allows | |
+| **Shortfall / unserved** | Requests that no appointment covers, or a floor the budget cannot meet | |
+
+## 11. Simple one-line answers when a term comes up
+
+**SAY:** “MAE is just our average miss. Lower means better.”
+
+**SAY:** “The baseline is the simple guess we had to beat.”
+
+**SAY:** “Held out means the model never saw that data while it learned.”
+
+**SAY:** “Persistence means assuming the wind stays the way it is now.”
+
+**SAY:** “Historical alignment is how well the plan matches where claims really came from in past storms. It is not people helped.”
+
+**SAY:** “Recorded depth is the water depth written on the claim. The unit isn't stated, so we don't call it feet.”
+
+**SAY:** “Negative R² means it still makes some big misses on individual claims in a new storm. More storms are our next step.”
