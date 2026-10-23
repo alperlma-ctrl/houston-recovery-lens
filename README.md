@@ -43,7 +43,7 @@ The demo's **Predict damage** page uses this model for a one-home estimator and 
 - `analysis.ipynb` — notebook with six executed code cells and plain-language explanations
 - `train_model.py` — reproducible cleaning, validated joins, training, selection, and testing of the first model
 - `predict_model.py` — trains and tests the final damage estimator and writes `demo/predict.js`
-- `demo/` — source for the browser demo (`OPEN_DEMO.html` is these files combined into one page)
+- `demo/` — source for the browser demo; `python build_demo.py` combines it into `OPEN_DEMO.html`
 - `results/predict_metrics.json` — test results for the final model
 - `requirements.txt` — the Python package versions used
 - `PRESENTATION_GUIDE.md` — pitch and judge questions

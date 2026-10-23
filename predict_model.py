@@ -86,8 +86,9 @@ def main():
                'Flood zone': importance.filter(like='zone_').sum(), 'County': importance.filter(like='county_').sum()}
 
     # estimator grid used by the demo's "estimate a home" tool
-    depths = [0.5, 1, 2, 3, 4, 6, 8, 10]
-    coverages = [50000, 100000, 150000, 200000, 250000]
+    # the demo fills in values between these points
+    depths = [0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 30]
+    coverages = [10000, 25000, 50000, 75000, 100000, 150000, 200000, 250000]
     rows = []
     for w in summary.to_dict('records'):
         for zone in ['X', 'AE', 'OTHER']:
