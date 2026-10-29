@@ -1,0 +1,17 @@
+const fs=require('fs'),vm=require('vm'),path=require('path'),assert=require('assert');
+const root=path.resolve(__dirname,'..');
+const ctx=vm.createContext({window:{RECOVERY_DATA:JSON.parse(fs.readFileSync(path.join(root,'results/demo_data.json'),'utf8')),PREDICT_DATA:JSON.parse(fs.readFileSync(path.join(root,'results/predict_data.json'),'utf8'))},Intl});
+const app=fs.readFileSync(path.join(root,'demo/app.js'),'utf8');
+vm.runInContext(app.slice(0,app.indexOf('function mapSvg()')),ctx);
+vm.runInContext(fs.readFileSync(path.join(root,'demo/predict-ui.js'),'utf8'),ctx);
+const result=vm.runInContext(`(()=>{let points=0,groups=0;for(const storm of Object.keys(D.storm_years))for(const county of Object.values(D.counties))for(const zone of ['X','AE','OTHER'])for(const zip of ['',...P.demo_zips.filter(z=>z.county===county).map(z=>z.zip)]){Object.assign(est,{storm,county,zone,zip});for(const [depth,coverage] of [[0,25000],[10,250000],[3.5,125000]]){Object.assign(est,{depth,coverage});const value=estimate();if(!Number.isFinite(value)||value<0)throw Error('Invalid grid interpolation');points++;}const cohort=P.cohort_counts.find(r=>r.storm===storm&&r.county===county&&r.zone===zone);if((cohort?.claims??0)<50&&estimateView().value!=='Not enough data')throw Error('Missing sparse cohort suppression');if(!zip)groups++;}const blank=readNumber({value:''},0,10,'depth',String);if(blank.value!==null)throw Error('Blank must preserve last good state');if(readNumber({value:'30'},0,10,'depth',String).value!==10)throw Error('Upper bound');if(readNumber({value:'-1'},0,10,'depth',String).value!==0)throw Error('Lower bound');return {groups,points};})()`,ctx);
+const places=5+ctx.window.PREDICT_DATA.demo_zips.length;
+assert.equal(result.groups,60);assert.equal(result.points,36*places);
+console.log(`PASS: 60 storm/county/zone groups, ${places} places, ${result.points} interpolation points, sparse cohorts, blank input and bounds.`);
+
+
+// Catch presentation regressions that previously overstated evaluation and depth units.
+assert(!/ft of water|before the claims arrive|LESS ERROR ON HOMES IT NEVER SAW|where most values look like feet/.test(fs.readFileSync(path.join(root,"demo/predict-ui.js"),"utf8")));
+const score=vm.runInContext("allEventGain()",ctx);assert(score>0&&score<1);
+assert(vm.runInContext("damageEvidence().includes('Always-zero MAE') && damageEvidence().includes('chronological')",ctx));
+console.log("PASS: complete-event score, evidence baselines, and honest depth/evaluation labels.");

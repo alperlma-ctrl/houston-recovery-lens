@@ -1,0 +1,90 @@
+{
+  "causal_feature_future_perturbation": "PASS",
+  "capacity_edge_cases": 107,
+  "capacity_invariants": "PASS conservation, integer slots, demand caps, deterministic results",
+  "wind_replay_combinations_browser_checked": 35,
+  "standalone_flows_checked": [
+    "wind reveal",
+    "live capacity editing",
+    "pitch navigation"
+  ],
+  "severe_current_gust_fallback_browser_checked": true,
+  "recovery_empty_cohort_after_upgrade": "PASS Montgomery / Nicholas suppression",
+  "notebook_executed_code_cells": 8,
+  "javascript_syntax": "PASS",
+  "archive_integrity": "PASS",
+  "scope": "Research demo; no operational forecast or emergency deployment claim.",
+  "decision_room": {
+    "continuous_scenario_subsets": 15,
+    "integer_policy_budget_checks": 315,
+    "browser_checks": [
+      "budget recalculation",
+      "scenario selection",
+      "manual unassigned slots",
+      "optimized mix",
+      "readable receipt download",
+      "standalone demo",
+      "supporting wind replay",
+      "updated pitch"
+    ],
+    "default_worst_overlap": {
+      "Equal": 0.41785714285714287,
+      "Historical mix": 0.3734319526627219,
+      "Stress-tested": 0.5915976331360946
+    }
+  },
+  "visual_motion": {
+    "browser_checked": [
+      "score gauge",
+      "pause and resume",
+      "rapid policy changes",
+      "budget edits",
+      "navigation away and back",
+      "standalone offline packaging"
+    ],
+    "reduced_motion": "CSS and JavaScript respect prefers-reduced-motion; not emulated during browser QA",
+    "calculations_changed": false,
+    "radar_removed": true
+  },
+  "pull_request_1": {
+    "head": "a5171a4c44e4ac1ca854e9f765627111409c7406",
+    "checks": [
+      "reproduced XGBoost results",
+      "60 cohort combinations",
+      "180 interpolation points",
+      "blank and bounds",
+      "sparse cohort suppression",
+      "315 Decision Room allocation checks",
+      "standalone rebuild byte equality",
+      "browser estimator and evidence"
+    ],
+    "preserved": [
+      "Decision Room default",
+      "no radar",
+      "dark number controls",
+      "motion pause and reduced motion",
+      "wind replay",
+      "atlas",
+      "capacity plan"
+    ],
+    "interpretation_changes": [
+      "depth codes explicitly unresolved units",
+      "claim records rather than unique homes",
+      "retrospective replay rather than advance forecast",
+      "ZIP aggregation rather than aid priority",
+      "Beryl development status and negative R2"
+    ]
+  },
+  "external_presenter_guide": {
+    "removed_from_app": true,
+    "app_navigation_tabs": 6,
+    "guide_sections": 8,
+    "guide_words": 3403,
+    "checked": [
+      "no embedded pitch functions",
+      "eight navigation anchors",
+      "browser layout",
+      "exact action labels and verified model values"
+    ]
+  }
+}
